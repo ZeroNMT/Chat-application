@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Point3D?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="borderPane" maxHeight="620.0" maxWidth="1040.0" prefHeight="620.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.chatwindow.ChatController">
+   <center>
+      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+         <children>
+            <HBox alignment="CENTER" prefHeight="28.0" prefWidth="823.0">
+               <children>
+                  <ImageView fx:id="userNowConnectImage" fitHeight="48.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/icon_chat.png" />
+                     </image>
+                  </ImageView>
+                  <HBox prefHeight="48.0" prefWidth="15.0" />
+                  <Label fx:id="userNowConnectName" text="Welcome to Chat K3T">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" prefHeight="496.0" vbarPolicy="ALWAYS" vmin="1.0" vvalue="1.0" VBox.vgrow="ALWAYS">
+               <content>
+                  <ListView fx:id="chatPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="468.0" />
+               </content>
+            </ScrollPane>
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="100.0" VBox.vgrow="NEVER">
+               <children>
+                  <TextArea fx:id="messageBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="100.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#sendMethod" prefHeight="48.0" prefWidth="376.0" promptText="Enter Message..." scaleShape="false" HBox.hgrow="ALWAYS">
+                     <font>
+                        <Font name="SansSerif Regular" size="14.0" />
+                     </font>
+                  </TextArea>
+                  <JFXButton fx:id="buttonSend" onAction="#sendButtonAction" prefHeight="48.0" prefWidth="109.0" ripplerFill="#dde7f2" style="-fx-background-color: #007bff;" text=" ">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="SEND" size="30" />
+                     </graphic>
+                  </JFXButton>
+                  <JFXButton fx:id="btnSendFile" onAction="#btnSendFileOnAction" prefHeight="48.0" prefWidth="1.0" ripplerFill="#dde7f2" style="-fx-background-color: #ffffff;" text=" ">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="FILE_TEXT" size="30" />
+                     </graphic>
+                  </JFXButton>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+   <left>
+      <VBox maxHeight="1.7976931348623157E308" BorderPane.alignment="CENTER">
+         <children>
+            <HBox fx:id="onlineUsersHbox" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="217.0" stylesheets="@../styles/ListViewStyle.css">
+               <children>
+                  <Label prefHeight="50.0" prefWidth="124.0" text="Online Users:" textAlignment="CENTER" textFill="#030303">
+                     <font>
+                        <Font name="SansSerif Regular" size="14.0" />
+                     </font>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                     <opaqueInsets>
+                        <Insets bottom="10.0" />
+                     </opaqueInsets>
+                  </Label>
+                  <Label fx:id="onlineCountLabel" prefHeight="48.0" prefWidth="94.0" text="0" textFill="#070606">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <font>
+                        <Font name="SansSerif Regular" size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <ListView fx:id="userList" focusTraversable="false" maxHeight="1.7976931348623157E308" prefHeight="495.0" prefWidth="217.0" style="-fx-border-image-width: 0;" stylesheets="@../styles/ListViewStyle.css">
+            </ListView>
+         </children>
+      </VBox>
+   </left>
+   <top>
+      <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="104.0" prefWidth="1040.0" style="-fx-background-color: #000000;" BorderPane.alignment="CENTER">
+         <right>
+            <HBox onMousePressed="#minimizeApplication" prefHeight="104.0" prefWidth="57.0" BorderPane.alignment="CENTER">
+               <children>
+                  <FontAwesomeIconView fill="#007bff" glyphName="MINUS" onMousePressed="#minimizeApplication" size="30" />
+                  <HBox prefHeight="104.0" prefWidth="21.0" />
+                  <FontAwesomeIconView fill="#007bff" glyphName="CLOSE" onMousePressed="#closeApplication" size="30" />
+               </children>
+            </HBox>
+         </right>
+         <left>
+            <HBox prefHeight="104.0" prefWidth="215.0" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox prefHeight="104.0" prefWidth="12.0" />
+                  <VBox alignment="CENTER" prefHeight="104.0" prefWidth="198.0">
+                     <children>
+                        <HBox alignment="CENTER" prefHeight="67.0" prefWidth="164.0">
+                           <children>
+                              <ImageView fx:id="userImageView" fitHeight="84.0" fitWidth="67.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../images/default.png" />
+                                 </image>
+                              </ImageView>
+                              <VBox prefHeight="67.0" prefWidth="19.0" />
+                              <ComboBox fx:id="statusComboBox" prefHeight="25.0" prefWidth="101.0" promptText="Online" stylesheets="@../styles/ComboBox.css">
+                                 <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                       <String fx:value="Online" />
+                                       <String fx:value="Away" />
+                                       <String fx:value="Busy" />
+                                    </FXCollections>
+                                 </items>
+                              </ComboBox>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER">
+                           <children>
+                              <Label fx:id="usernameLabel" contentDisplay="CENTER" prefHeight="25.0" prefWidth="194.0" text="K3T" textAlignment="CENTER" textFill="#007bff" textOverrun="CENTER_ELLIPSIS">
+                                 <font>
+                                    <Font name="System Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </left>
+         <center>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="104.0" prefWidth="731.0">
+                     <children>
+                        <HBox prefHeight="104.0" prefWidth="80.0" />
+                        <FontAwesomeIconView fill="#007bff" glyphName="WECHAT" size="80" />
+                        <VBox prefHeight="104.0" prefWidth="26.0" />
+                        <Label prefHeight="101.0" prefWidth="326.0" text=" Chat K3T" textFill="#007bff">
+                           <font>
+                              <Font name="System Bold" size="55.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </center>
+      </BorderPane>
+   </top>
+   <rotationAxis>
+      <Point3D />
+   </rotationAxis>
+</BorderPane>

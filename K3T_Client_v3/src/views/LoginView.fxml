@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="borderPane" maxWidth="364.0" minWidth="350.0" prefHeight="571.0" prefWidth="364.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.login.LoginController">
+   <top>
+      <GridPane prefHeight="571.0" prefWidth="364.0" BorderPane.alignment="CENTER">
+         <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="325.0" minWidth="10.0" prefWidth="95.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="224.0" minWidth="10.0" prefWidth="190.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="325.0" minWidth="10.0" prefWidth="79.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints maxHeight="149.0" minHeight="10.0" prefHeight="30.0" valignment="CENTER" />
+            <RowConstraints maxHeight="226.0" minHeight="10.0" prefHeight="114.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="149.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="96.0" minHeight="10.0" prefHeight="43.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="126.0" minHeight="12.0" prefHeight="27.0" />
+            <RowConstraints maxHeight="96.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="127.0" minHeight="0.0" prefHeight="31.0" valignment="CENTER" />
+            <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="31.0" />
+            <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="24.0" />
+            <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="24.0" />
+            <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="29.0" />
+            <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="33.0" />
+            <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="19.0" />
+            <RowConstraints maxHeight="110.0" minHeight="0.0" prefHeight="52.0" />
+            <RowConstraints maxHeight="110.0" minHeight="0.0" prefHeight="41.0" />
+            <RowConstraints maxHeight="110.0" minHeight="0.0" prefHeight="0.0" />
+            <RowConstraints maxHeight="110.0" minHeight="0.0" prefHeight="0.0" />
+            <RowConstraints maxHeight="110.0" minHeight="0.0" prefHeight="0.0" />
+         </rowConstraints>
+         <children>
+            <Label text="Hostname: " textAlignment="CENTER" textFill="#111111" GridPane.rowIndex="6" />
+            <TextField fx:id="hostnameTextfield" prefWidth="188.0" text="localhost" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label text="Port: " GridPane.rowIndex="7" />
+            <TextField fx:id="portTextfield" prefHeight="13.0" prefWidth="149.0" text="9001" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Label text="Username: " textFill="#0d0d0d" GridPane.rowIndex="3" />
+            <TextField fx:id="usernameTextfield" promptText="User Name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label prefHeight="22.0" prefWidth="170.0" text="Server center infomation:" textFill="#111111" GridPane.columnIndex="1" GridPane.rowIndex="5">
+               <font>
+                  <Font size="14.0" />
+               </font></Label>
+            <StackPane prefHeight="115.0" prefWidth="187.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <children>
+                  <ImageView fx:id="Defaultview" fitHeight="93" fitWidth="93" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/default.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </StackPane>
+            <ChoiceBox fx:id="imagePicker" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <items>
+                  <FXCollections fx:factory="observableArrayList">
+                     <String fx:value="Default" />
+                     <String fx:value="Minh Tham" />
+                    <String fx:value="An Khang" />
+                    <String fx:value="Huynh Thoai" />
+                    <String fx:value="Ngoc Thach" />
+                    <String fx:value="Tuan Vu" />                    
+                    <String fx:value="Cao Luong" />
+                    <String fx:value="Huynh Thuc" />
+                    <String fx:value="Chi Luong" />
+
+
+                  </FXCollections>
+               </items>
+                    </ChoiceBox>
+            <Label fx:id="selectedPicture" text="Label" GridPane.rowIndex="1" />
+            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2">
+               <children>
+                  <FontAwesomeIconView glyphName="MINUS" onMousePressed="#minimizeWindow" size="30" wrappingWidth="35.571428298950195" />
+                  <FontAwesomeIconView glyphName="CLOSE" onMousePressed="#closeSystem" size="30" wrappingWidth="27.571428298950195" />
+               </children>
+               <GridPane.margin>
+                  <Insets right="10.0" top="10.0" />
+               </GridPane.margin>
+            </HBox>
+            <JFXButton id="connectBtn" onAction="#loginButtonAction" prefHeight="25.0" prefWidth="157.0" style="-fx-background-color: #007bff80;" text="Connect" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+            <Label prefHeight="22.0" prefWidth="170.0" text="Server user infomation:" textFill="#111111" GridPane.columnIndex="1" GridPane.rowIndex="9">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="portListenTextfield" prefHeight="13.0" prefWidth="149.0" promptText="Port to listen" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+            <Label text="Port to listen:  " GridPane.rowIndex="10" />
+         </children>
+      </GridPane>
+   </top>
+</BorderPane>
