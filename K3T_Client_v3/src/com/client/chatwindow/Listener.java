@@ -65,12 +65,12 @@ public class Listener implements Runnable {
             this.ipAddress=ipAddress;
             Cryptography crypt = new Cryptography();
             ArrayList<byte[]>  listKey = new ArrayList<byte[]> ();
-            KeyPair keyRSA = RSA.createKeyRSA();
+            KeyPair keyRSA = RSA.createKeyRSA(2048);
             KeyPair KeyDSA = DSA.createKeyDSA();
-            listKey.add(keyRSA.getPublic().getEncoded());
-            listKey.add(KeyDSA.getPublic().getEncoded());
-            listKey.add(keyRSA.getPrivate().getEncoded());
-            listKey.add(KeyDSA.getPrivate().getEncoded());
+            listKey.add(0,keyRSA.getPublic().getEncoded());
+            listKey.add(1,KeyDSA.getPublic().getEncoded());
+            listKey.add(2,keyRSA.getPrivate().getEncoded());
+            listKey.add(3,KeyDSA.getPrivate().getEncoded());
             crypt.setListKey(listKey);
         
             this.crypt = crypt;
@@ -270,7 +270,7 @@ public class Listener implements Runnable {
                                         controller.updateMgs(message);
                                     break;       
                                 case EXCHANGE_KEY:
-                                    exchangeKey(message);
+                                    exchangeKeyMessage(message);
                                     break;                                    
                             }
                         }
@@ -334,110 +334,83 @@ public class Listener implements Runnable {
     }
 
     public void sendToMessEXCHANGE_KEY_Lan1 (){
-        
-        
         Message createMessage = new Message();
         createMessage.setName(this.username);
         createMessage.setType(MessageType.EXCHANGE_KEY);
         createMessage.setStatus(Status.AWAY);
-        createMessage.setMsg("Lan1"+crypt.getNameAlgorithm());
+        createMessage.setMsg(crypt.getNameAlgorithm());
         createMessage.setPicture(this.picture);
         ArrayList<User> listUser = controller.listUser;
-        for (int i = 0; i < listUser.size(); i++) {
-            User user= listUser.get(i);
-            logger.info("EXCHANGE_KEY message: "+ user.getName());
-            if (user.getName().equals(username)) {
-                continue;
-            }
-            logger.info("EXCHANGE_KEY message222: "+ user.getName());
+        try {
             
-            ObjectOutputStream ossTo = senders.get(user.getName());
-            if (ossTo == null){
-                continue;
-            }
-            try {
+            //Ma hoa key
+            ArrayList<byte[]> listKey = crypt.getListKey();
+            byte[] exchangeKey = listKey.get(4);//"234".getBytes();//
+            byte[] privateKeyByteDSA = listKey.get(3);
+            byte [] exChangeKeySign = DSA.EncryptionDSA(exchangeKey, privateKeyByteDSA);                                           
+            for (int i = 0; i < listUser.size(); i++) {
+                User user= listUser.get(i);
+                ObjectOutputStream ossTo = senders.get(user.getName());
+                if (ossTo == null){
+                    continue;
+                }  
+                byte[] publicKeyByteRSA= user.getCrypt().getListKey().get(0);
+                logger.info("BYTE:-----------------   " + String.valueOf(exchangeKey.length) +"   "+ String.valueOf(exChangeKeySign.length));
                 
+                byte[] exChangeKeySign_EnRSA = RSA.EncryptionRSA(exChangeKeySign, publicKeyByteRSA);              
+                byte[] exChangeKey_EnRSA = RSA.EncryptionRSA(exchangeKey, publicKeyByteRSA);                
+                ArrayList<byte[]> listAlgorithm = new ArrayList<byte[]>();
+                listAlgorithm.add(exChangeKey_EnRSA);
+                listAlgorithm.add(exChangeKeySign_EnRSA);
+                createMessage.setAlgorithm(listAlgorithm);
+//                logger.info(Base64.getEncoder().encodeToString(exchangeKey));                            
+//                logger.info(Base64.getEncoder().encodeToString(exChangeKeySign));                            
+//                logger.info(Base64.getEncoder().encodeToString(listKey.get(1)));                
+
                 ossTo.writeObject(createMessage);
                 ossTo.flush();
-            } catch (IOException ex) {
-                logger.error("Can not write to : " + user.getName(), ex);
-            } 
-        }        
-    
+                
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
    
-    public void sendToMessEXCHANGE_KEY_Lan2 (){
-        
-        
-        Message createMessage = new Message();
-        createMessage.setName(this.username);
-        createMessage.setType(MessageType.EXCHANGE_KEY);
-        createMessage.setStatus(Status.AWAY);
-        createMessage.setMsg("Lan1"+crypt.getNameAlgorithm());
-        createMessage.setPicture(this.picture);
+    public  void exchangeKeyMessage(Message msg){
+        String nameAlgo = msg.getMsg();
+        String nameUserSend = msg.getName();
+        ArrayList<byte[]> listAlgo = msg.getAlgorithm();
+        byte[] privateKeyByteRSA= crypt.getListKey().get(2);
         ArrayList<User> listUser = controller.listUser;
-        for (int i = 0; i < listUser.size(); i++) {
-            User user= listUser.get(i);
-            logger.info("EXCHANGE_KEY message: "+ user.getName());
-            if (user.getName().equals(username)) {
-                continue;
+        byte[] publicKeyByteDSA = null;
+        int i;
+        ArrayList<byte[]> listKey = new ArrayList<byte[]>();
+        for ( i = 0; i < listUser.size(); i++) {
+            if (listUser.get(i).getName().equals(nameUserSend) ){
+                listKey = listUser.get(i).getCrypt().getListKey();
+                publicKeyByteDSA = listKey.get(1);
+                break;
             }
-            logger.info("EXCHANGE_KEY message222: "+ user.getName());
-            
-            ObjectOutputStream ossTo = senders.get(user.getName());
-            if (ossTo == null){
-                continue;
-            }
-            try {
-                
-                ossTo.writeObject(createMessage);
-                ossTo.flush();
-            } catch (IOException ex) {
-                logger.error("Can not write to : " + user.getName(), ex);
-            } 
-        }        
-    
-    }    
-    public void sendToMessEXCHANGE_KEY_Lan3 (){
-        
-        
-        Message createMessage = new Message();
-        createMessage.setName(this.username);
-        createMessage.setType(MessageType.EXCHANGE_KEY);
-        createMessage.setStatus(Status.AWAY);
-        createMessage.setMsg("Lan1"+crypt.getNameAlgorithm());
-        createMessage.setPicture(this.picture);
-        ArrayList<User> listUser = controller.listUser;
-        for (int i = 0; i < listUser.size(); i++) {
-            User user= listUser.get(i);
-            logger.info("EXCHANGE_KEY message: "+ user.getName());
-            if (user.getName().equals(username)) {
-                continue;
-            }
-            logger.info("EXCHANGE_KEY message222: "+ user.getName());
-            
-            ObjectOutputStream ossTo = senders.get(user.getName());
-            if (ossTo == null){
-                continue;
-            }
-            try {
-                
-                ossTo.writeObject(createMessage);
-                ossTo.flush();
-            } catch (IOException ex) {
-                logger.error("Can not write to : " + user.getName(), ex);
-            } 
-        }        
-    
-    }    
-    
-    public  void exchangeKey(Message msg){
-        String num = msg.getMsg().substring(0,4);      
-        if (num.equals("Lan1")){
-            logger.info("exchange key ..............");
+        }
+        logger.info("exchange key ..............");
+        byte[] exChangeKey = RSA.DecryptionRSA(listAlgo.get(0), privateKeyByteRSA);
+        byte[] exChangeKeySign = RSA.DecryptionRSA(listAlgo.get(1), privateKeyByteRSA);
+//            logger.info(Base64.getEncoder().encodeToString(exChangeKey));
+//            logger.info(Base64.getEncoder().encodeToString(exChangeKeySign));
+//            logger.info(Base64.getEncoder().encodeToString(publicKeyByteDSA));
+
+        boolean result = DSA.DecryptionDSA_verifySign(exChangeKey, exChangeKeySign, publicKeyByteDSA);
+        if(!result){
+            controller.showInfo(username,"HACKKKKKKKKKK");
         }
         else{
-            
+            listKey.add(2,exChangeKey);
+            controller.listUser.get(i).setCrypt(new Cryptography(nameAlgo,listKey));
+
         }
+
+
     }
+    
+    
 }

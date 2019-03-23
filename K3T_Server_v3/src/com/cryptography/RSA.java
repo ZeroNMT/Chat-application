@@ -56,7 +56,7 @@ public class RSA {
     
     
     
-    public static String EncryptionRSA(String message, byte[] keyBytes) {
+    public static String EncryptionRSA(byte[] message, byte[] keyBytes) {
         String cipherText = "";
         try{
             X509EncodedKeySpec spec =new X509EncodedKeySpec(keyBytes);
@@ -66,7 +66,7 @@ public class RSA {
             Cipher c = Cipher.getInstance("RSA");
             c.init(Cipher.ENCRYPT_MODE, publicKey);
             String msg = "helloworld";
-            byte encryptOut[] = c.doFinal(message.getBytes());
+            byte encryptOut[] = c.doFinal(message);
             cipherText =  Base64.getEncoder().encodeToString(encryptOut);
         } catch (Exception e) {
             e.printStackTrace();

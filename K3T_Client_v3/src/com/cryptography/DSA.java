@@ -29,7 +29,9 @@ public class DSA {
         KeyPair kp =null;
         try {
             SecureRandom sr = new SecureRandom();
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            KeyPairGenerator kpg;
+            kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(1024, sr);            
              kp = kpg.genKeyPair();          
         } catch (Exception ex) {
             Logger.getLogger(RSA.class.getName()).log(Level.SEVERE, null, ex);
@@ -45,7 +47,7 @@ public class DSA {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             PrivateKey privateKey = kf.generatePrivate(spec);
             
-            Signature signature = Signature.getInstance("SHA512withRSA");
+            Signature signature = Signature.getInstance("SHA1withRSA");
             signature.initSign(privateKey);         
             signature.update(message);            
             bSignature = signature.sign();            
@@ -58,7 +60,7 @@ public class DSA {
     public static boolean DecryptionDSA_verifySign(byte [] strEncrypt, byte[] sign , byte[] punlicKeyBytes)  {
         boolean result = true;
         try{
-            Signature signature = Signature.getInstance("SHA512withRSA");
+            Signature signature = Signature.getInstance("SHA1withRSA");
             
             X509EncodedKeySpec spec =new X509EncodedKeySpec(punlicKeyBytes);
             KeyFactory kf = KeyFactory.getInstance("RSA");

@@ -556,10 +556,11 @@ public class ChatController implements Initializable {
                 }
                 else{
                     listener.crypt.setNameAlgorithm("RSA");
-                    KeyPair kp = RSA.createKeyRSA();                    
+                    KeyPair kp = RSA.createKeyRSA(512);                    
                     ArrayList<byte[]> listKey =  listener.crypt.getListKey();
                     listKey.add(4,kp.getPublic().getEncoded());
                     listKey.add(5,kp.getPrivate().getEncoded());
+                    listener.crypt.setListKey(listKey);
                 }
                 break;
             case "DES":
@@ -571,7 +572,9 @@ public class ChatController implements Initializable {
                     SecretKey kp = DES.createKeyDES();                    
                     ArrayList<byte[]> listKey =  listener.crypt.getListKey();
                     listKey.add(4,kp.getEncoded());
-                    listKey.add(5,null);                      
+                    listKey.add(5,null);       
+                    listener.crypt.setListKey(listKey);
+                    
                 }        
                 break;
             case "AES":
@@ -583,7 +586,9 @@ public class ChatController implements Initializable {
                     SecretKey kp = AES.createKeyAES();                    
                     ArrayList<byte[]> listKey =  listener.crypt.getListKey();
                     listKey.add(4,kp.getEncoded());
-                    listKey.add(5,null);                      
+                    listKey.add(5,null);      
+                    listener.crypt.setListKey(listKey);
+                    
                 }        
                 break;                
         }

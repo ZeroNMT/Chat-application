@@ -14,12 +14,20 @@ import java.util.ArrayList;
 public class Cryptography implements Serializable {
     private String nameAlgorithm;
     private ArrayList<byte[]> listKey ;    
-    // no 1: public key RSA
-    // no 2: public key DSA
-    // no 3: private key RSA
-    // no 4: pricate key DSA
-    // no 5,6: key of nameAlgorithm
+    // no 0: public key RSA
+    // no 1: public key DSA
+    // no 2: private key RSA
+    // no 3: pricate key DSA
+    // no 4,5: key of nameAlgorithm
+    public Cryptography(){
+        this.nameAlgorithm="";
+        this.listKey = new ArrayList<byte[]>();                
+    }    
     
+    public Cryptography(String nameAlgorithm,ArrayList<byte[]> listKey){
+        this.nameAlgorithm=nameAlgorithm;
+        this.listKey = listKey;                
+    }
     //Name Algorithm
     public String getNameAlgorithm() {
         return nameAlgorithm;
@@ -35,26 +43,6 @@ public class Cryptography implements Serializable {
     public void setListKey(ArrayList<byte[]> listKey) {
         this.listKey = listKey;
     }
-    
-    public void createSendKeyStart() {
-        
-        KeyPair keyRSA = RSA.createKeyRSA();
-        KeyPair KeyDSA = DSA.createKeyDSA();
-        listKey.add(keyRSA.getPublic().getEncoded());
-        listKey.add(KeyDSA.getPublic().getEncoded());
-    }
-    public void createKeyStart() {
-        try{
-            KeyPair keyRSA = RSA.createKeyRSA();
-            KeyPair KeyDSA = DSA.createKeyDSA();
-            listKey.add(keyRSA.getPublic().getEncoded());
-            listKey.add(KeyDSA.getPublic().getEncoded());
-            listKey.add(keyRSA.getPrivate().getEncoded());
-            listKey.add(KeyDSA.getPrivate().getEncoded());
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+
     
 }

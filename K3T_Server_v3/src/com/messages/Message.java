@@ -18,14 +18,14 @@ public class Message implements Serializable {
     String ipAddress;
     String portListen;
     private Cryptography crypt;
-    private ArrayList<String> listAlgorithm;
+    private ArrayList<byte[]> listAlgorithm;
     //send file
     private byte [] byteArray;
     
-    public ArrayList<String> getAlgorithm() {
+    public ArrayList<byte[]> getAlgorithm() {
         return listAlgorithm;
     }
-    public void setAlgorithm(ArrayList<String> listAlgorithm) {
+    public void setAlgorithm(ArrayList<byte[]> listAlgorithm) {
         this.listAlgorithm = listAlgorithm;
     }
     
