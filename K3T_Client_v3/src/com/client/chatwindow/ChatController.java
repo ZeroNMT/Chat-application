@@ -1,6 +1,8 @@
 package com.client.chatwindow;
 
 import com.client.login.MainLauncher;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import com.messages.Message;
 import com.messages.MessageType;
 import com.messages.Status;
@@ -71,11 +73,34 @@ public class ChatController implements Initializable {
     BorderPane borderPane;
     @FXML
     ComboBox statusComboBox;
-
+    @FXML
+    private Label textLabel;
     @FXML
     private ImageView userNowConnectImage;
     @FXML
     private Label userNowConnectName;
+    @FXML
+    ComboBox cryptCombox;
+    @FXML
+    ComboBox keyComboBox;
+    @FXML
+    private JFXButton btnSaveCrypt;
+    @FXML
+    private Pane paneChange;
+    @FXML
+    private Pane paneResultCrypt;    
+    @FXML
+    private Pane paneInfoCrypt;   
+    @FXML
+    private Pane paneChooseFile;     
+    @FXML
+    private Label algoLabel;
+        @FXML
+    private Label nameFileLabel;
+    @FXML
+    private Label keyLabel;
+    @FXML
+    private JFXButton btnChangeCrypt;    
     
     private double xOffset;
     private double yOffset;
@@ -83,8 +108,13 @@ public class ChatController implements Initializable {
     private Listener listener;
     String userNow="";
     public CellRenderer cellRender;
-
-
+    private FileChooser fileChooser;
+    private File file;
+    private byte [] byteArray;
+    private FileChooser fileChooseKey;
+    private File fileKey;
+    private byte [] byteKey;
+    
     public void setListener(Listener ls) {
         this.listener = ls;
     }
@@ -171,6 +201,9 @@ public class ChatController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         try {
             setImageLabel();
+            paneChange.setVisible(false);
+            paneResultCrypt.setVisible(false);
+            paneChooseFile.setVisible(false);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -200,7 +233,42 @@ public class ChatController implements Initializable {
                 }
             }
         });
-
+        cryptCombox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue.equals("Không mã hóa")){
+                    keyComboBox.setVisible(false);
+                    paneChooseFile.setVisible(false);
+                    textLabel.setVisible(false);
+                }
+                else{
+                    keyComboBox.setVisible(true);
+                    textLabel.setVisible(true);  
+                    switch(newValue){
+                        case "RSA":
+                            
+                            break;
+                        case "DES":
+                            
+                            break;
+                        case "AES":
+                            
+                            break;                            
+                    }
+              
+   
+                }
+            }
+        });
+        keyComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue.equals("Không")){
+                    paneChooseFile.setVisible(true);
+                }
+                else{
+                    paneChooseFile.setVisible(false);
+                }
+            }
+        });
         /* Added to prevent the enter from adding a new line to inputMessageBox */
         messageBox.addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
             if (ke.getCode().equals(KeyCode.ENTER)) {
@@ -214,6 +282,7 @@ public class ChatController implements Initializable {
         });
 
     }
+
 
     public void setImageLabel(String selectedPicture) {
         switch (selectedPicture) {
@@ -407,9 +476,7 @@ public class ChatController implements Initializable {
             othersMessages.run();
         }
     }
-    private FileChooser fileChooser;
-    private File file;
-    private byte [] byteArray;
+
 
     @FXML
     void btnSendFileOnAction(ActionEvent event) {
@@ -462,5 +529,45 @@ public class ChatController implements Initializable {
         bufferedOutputStream.flush();
         bufferedOutputStream.close();
         showInfo(userNow,"Success !!!");
+    }
+    
+    
+    @FXML
+    void saveButtonAction(ActionEvent event) {
+        if (cryptCombox.getValue().toString().equals("Không mã hóa")){
+            updatePaneInfomationCrypt("Không mã hóa", "Chưa có");
+        }
+        else{
+            if(keyComboBox.getValue().toString().equals("Không")){                
+                updatePaneInfomationCrypt(cryptCombox.getValue().toString(), fileKey.getName());
+            }
+            else{
+                updatePaneInfomationCrypt(cryptCombox.getValue().toString(), "Tự động tạo");                
+            }
+        }
+        btnChangeCrypt.setVisible(true);
+        paneChange.setVisible(false);     
+        fileKey = null;
+    }
+    @FXML    
+    void changeButtonAction(ActionEvent event) {
+        btnChangeCrypt.setVisible(false);
+        paneChange.setVisible(true);
+    }   
+    
+    void updatePaneInfomationCrypt(String giaithuat, String key){
+        algoLabel.setText("Giải thuật mã hóa: " + giaithuat );
+        keyLabel.setText("Key: " + key );
+    }
+    
+    @FXML
+    void btnChooseFileAction(ActionEvent event) {
+        fileChooseKey = new FileChooser();
+        fileKey = fileChooseKey.showOpenDialog(MainLauncher.getPrimaryStage());
+        if(fileKey!=null)
+        {
+            byteKey  = new byte [(int)file.length()];
+            nameFileLabel.setText(fileKey.getName());
+        }
     }
 }

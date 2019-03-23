@@ -24,10 +24,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import com.cryptography.Cryptography;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.ResourceBundle;
 import javafx.scene.image.Image;
@@ -41,7 +43,7 @@ public class LoginController implements Initializable {
     @FXML private TextField portTextfield;
     @FXML private TextField usernameTextfield;
     @FXML private ChoiceBox imagePicker;
-    @FXML private Label selectedPicture;
+    @FXML private Label     selectedPicture;
     @FXML private TextField portListenTextfield;
     public static ChatController con;
     @FXML private BorderPane borderPane;
@@ -59,7 +61,7 @@ public class LoginController implements Initializable {
     public static LoginController getInstance() {
         return instance;
     }
-    public void loginButtonAction() throws IOException {
+    public void loginButtonAction() throws IOException, NoSuchAlgorithmException {
         String hostname = hostnameTextfield.getText();
         int port = Integer.parseInt(portTextfield.getText());
         String username = usernameTextfield.getText();
@@ -67,7 +69,7 @@ public class LoginController implements Initializable {
         if (username.isEmpty() || hostname.isEmpty()   || portListenTextfield.getText().isEmpty() || portTextfield.getText().isEmpty()  ){
             showWarning("No enough infomation !!!");
         }
-        else{
+        else{            
             String portListen = portListenTextfield.getText();
             String ipAddress =InetAddress.getLocalHost().getHostAddress();
             FXMLLoader fmxlLoader = new FXMLLoader(getClass().getResource("/views/ChatView.fxml"));
@@ -85,7 +87,7 @@ public class LoginController implements Initializable {
         Platform.runLater(() -> {
             Stage stage = (Stage) hostnameTextfield.getScene().getWindow();
             stage.setResizable(true);
-            stage.setWidth(700);
+            stage.setWidth(900);
             stage.setHeight(620);
 
             stage.setOnCloseRequest((WindowEvent e) -> {
@@ -93,7 +95,7 @@ public class LoginController implements Initializable {
                 System.exit(0);
             });
             stage.setScene(this.scene);
-            stage.setMinWidth(700);
+            stage.setMinWidth(900);
             stage.setMinHeight(300);
             stage.centerOnScreen();
             con.setUsernameLabel(usernameTextfield.getText());

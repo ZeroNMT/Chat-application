@@ -1,6 +1,8 @@
 package com.messages;
 
+import com.cryptography.Cryptography;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
 public class User implements Serializable {
@@ -9,7 +11,15 @@ public class User implements Serializable {
     String name;
     String ipAddress;
     String portListen;
+    Cryptography crypt;
     
+    
+    public Cryptography getCrypt(){
+        return crypt;    
+    }
+    public void setCrypt(Cryptography crypt){
+        this.crypt = crypt;
+    }
     
     //IP Address
     public String getIp() {

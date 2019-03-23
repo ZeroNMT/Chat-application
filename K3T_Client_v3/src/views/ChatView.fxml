@@ -15,14 +15,15 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="borderPane" maxHeight="620.0" maxWidth="1040.0" prefHeight="620.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.chatwindow.ChatController">
+<BorderPane fx:id="borderPane" maxHeight="620.0" maxWidth="1040.0" prefHeight="620.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.chatwindow.ChatController">
    <center>
       <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
          <children>
-            <HBox alignment="CENTER" prefHeight="28.0" prefWidth="823.0">
+            <HBox alignment="CENTER" prefHeight="87.0" prefWidth="456.0">
                <children>
                   <ImageView fx:id="userNowConnectImage" fitHeight="48.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -39,7 +40,7 @@
             </HBox>
             <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" prefHeight="496.0" vbarPolicy="ALWAYS" vmin="1.0" vvalue="1.0" VBox.vgrow="ALWAYS">
                <content>
-                  <ListView fx:id="chatPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="468.0" />
+                  <ListView fx:id="chatPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="421.0" prefWidth="429.0" />
                </content>
             </ScrollPane>
             <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="100.0" VBox.vgrow="NEVER">
@@ -67,7 +68,7 @@
    <left>
       <VBox maxHeight="1.7976931348623157E308" BorderPane.alignment="CENTER">
          <children>
-            <HBox fx:id="onlineUsersHbox" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="217.0" stylesheets="@../styles/ListViewStyle.css">
+            <HBox fx:id="onlineUsersHbox" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="217.0" stylesheets="@../styles/ListViewStyle.css">
                <children>
                   <Label prefHeight="50.0" prefWidth="124.0" text="Online Users:" textAlignment="CENTER" textFill="#030303">
                      <font>
@@ -90,7 +91,7 @@
                   </Label>
                </children>
             </HBox>
-            <ListView fx:id="userList" focusTraversable="false" maxHeight="1.7976931348623157E308" prefHeight="495.0" prefWidth="217.0" style="-fx-border-image-width: 0;" stylesheets="@../styles/ListViewStyle.css">
+            <ListView fx:id="userList" focusTraversable="false" maxHeight="1.7976931348623157E308" prefHeight="466.0" prefWidth="194.0" style="-fx-border-image-width: 0;" stylesheets="@../styles/ListViewStyle.css">
             </ListView>
          </children>
       </VBox>
@@ -168,4 +169,101 @@
    <rotationAxis>
       <Point3D />
    </rotationAxis>
+   <right>
+      <VBox>
+         <children>
+            <Pane fx:id="paneInfoCrypt" prefHeight="154.0" prefWidth="220.0">
+               <children>
+                  <Label layoutX="20.0" layoutY="14.0" prefHeight="30.0" prefWidth="163.0" text="Thông tin mã hóa">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <VBox layoutX="11.0" layoutY="46.0" prefHeight="61.0" prefWidth="210.0">
+                     <children>
+                        <Label fx:id="algoLabel" prefHeight="20.0" prefWidth="231.0" text="Giải thuật mã hóa: chưa có">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="keyLabel" prefHeight="17.0" prefWidth="210.0" text="Key: chưa có">
+                           <font>
+                              <Font size="14.0" />
+                           </font></Label>
+                     </children>
+                  </VBox>
+                  <JFXButton fx:id="btnChangeCrypt" layoutX="41.0" layoutY="109.0" onAction="#changeButtonAction" prefHeight="25.0" prefWidth="132.0" style="-fx-background-color: #007bff;" text="Thay đổi">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </JFXButton>
+               </children>
+            </Pane>
+            <Pane fx:id="paneChange">
+               <children>
+                  <VBox fx:id="vboxChangeCrypt" alignment="TOP_CENTER">
+                     <children>
+                        <Label prefHeight="25.0" prefWidth="219.0" text="   Giải thuật mã hóa:">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="cryptCombox" prefHeight="25.0" prefWidth="166.0" promptText="Hãy chọn" stylesheets="@../styles/ComboBox.css">
+                           <items>
+                              <FXCollections fx:factory="observableArrayList">
+                                  <String fx:value="Không mã hóa" />
+                                 <String fx:value="RSA" />
+                                 <String fx:value="DES" />
+                                  <String fx:value="AES" />
+                              </FXCollections>
+                           </items>
+                        </ComboBox>
+                        <Label fx:id="textLabel" prefHeight="25.0" prefWidth="220.0" text="   Tự động tạo key:">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="keyComboBox" prefHeight="25.0" prefWidth="169.0" promptText="Hãy chọn" stylesheets="@../styles/ComboBox.css">
+                           <items>
+                              <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Có" />
+                                 <String fx:value="Không" />
+                              </FXCollections>
+                           </items>
+                        </ComboBox>
+                        <Pane fx:id="paneChooseFile">
+                           <children>
+                              <HBox alignment="BOTTOM_CENTER" layoutX="15.0" prefHeight="39.0" prefWidth="200.0">
+                                 <children>
+                                    <Label fx:id="nameFileLabel" prefHeight="27.0" prefWidth="111.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" underline="true">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
+                                    <JFXButton fx:id="btnChooseFile" onAction="#btnChooseFileAction" prefHeight="18.0" prefWidth="100.0" ripplerFill="#dde7f2" style="-fx-background-color: #007bff;" text="Chọn file">
+                                       <graphic>
+                                          <FontAwesomeIconView glyphName="FILE_TEXT" size="20" />
+                                       </graphic>
+                                    </JFXButton>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </Pane>
+                        <Pane prefHeight="22.0" prefWidth="220.0" />
+                        <JFXButton fx:id="btnSaveCrypt" onAction="#saveButtonAction" prefHeight="25.0" prefWidth="132.0" style="-fx-background-color: #007bff;" text="Save">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXButton>
+                     </children>
+                  </VBox>
+               </children>
+            </Pane>
+            <Pane fx:id="paneResultCrypt" prefHeight="164.0" prefWidth="220.0">
+               <children>
+                  <VBox layoutY="39.0" />
+               </children>
+            </Pane>
+         </children>
+      </VBox>
+   </right>
 </BorderPane>

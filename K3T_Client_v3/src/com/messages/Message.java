@@ -1,6 +1,5 @@
 package com.messages;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

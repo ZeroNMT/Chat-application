@@ -1,6 +1,9 @@
 package com.client.chatwindow;
 
 import com.client.login.LoginController;
+import com.cryptography.Cryptography;
+import com.cryptography.DSA;
+import com.cryptography.RSA;
 import com.messages.Message;
 import com.messages.MessageType;
 import com.messages.Status;
@@ -10,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -20,7 +25,7 @@ import javafx.scene.text.Text;
 
 
 
-public class Listener implements Runnable{
+public class Listener implements Runnable {
 
     private static final String HASCONNECTED = "has connected";
 
@@ -32,6 +37,7 @@ public class Listener implements Runnable{
     public ChatController controller;
     public  String portListen;
     public  String ipAddress;
+    public Cryptography crypt;
     
     private static ObjectOutputStream oos;
     private InputStream is;
@@ -45,14 +51,31 @@ public class Listener implements Runnable{
  
     
 
-    public Listener(String hostname, int port, String username, String picture,String portListen,String ipAddress, ChatController controller) {
-        this.hostname = hostname;
-        this.port = port;
-        this.username = username;
-        this.picture = picture;
-        this.controller = controller;
-        this.portListen=portListen;
-        this.ipAddress=ipAddress;
+    public Listener(String hostname, int port, String username, String picture,String portListen,String ipAddress, ChatController controller)  {
+        try{
+            this.hostname = hostname;
+            this.port = port;
+            this.username = username;
+            this.picture = picture;
+            this.controller = controller;
+            this.portListen=portListen;
+            this.ipAddress=ipAddress;
+            Cryptography crypt = new Cryptography();
+            ArrayList<byte[]>  listKey = new ArrayList<byte[]> ();
+            KeyPair keyRSA = RSA.createKeyRSA();
+            KeyPair KeyDSA = DSA.createKeyDSA();
+            listKey.add(keyRSA.getPublic().getEncoded());
+            listKey.add(KeyDSA.getPublic().getEncoded());
+            listKey.add(keyRSA.getPrivate().getEncoded());
+            listKey.add(KeyDSA.getPrivate().getEncoded());
+            crypt.setListKey(listKey);
+        
+            this.crypt = crypt;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }        
+
+        
     }
 
     public void run() {
@@ -97,7 +120,8 @@ public class Listener implements Runnable{
                         case INVITE:
                             acceptRequestConnect(message);
                             break;
-
+                        case EXCHANGE_KEY:
+                            break;
                     }
                 }
             }
