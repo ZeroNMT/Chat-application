@@ -119,12 +119,17 @@ public class Server {
                 user.setPicture(firstMessage.getPicture());
                 user.setIp(firstMessage.getIp());
                 user.setPort(firstMessage.getPort());
+                
+                // 23/2/2019 
+                user.setCrypt(firstMessage.getCrypt());                                             
+                
                 users.add(user);
                 names.put(name, user);
                 logger.info(name + ": " + user.getIp() + " and "+user.getPort() + " has been added to the list");
             } else {
                 logger.error(firstMessage.getName() + " is already connected");
             }
+            
         }
 
 

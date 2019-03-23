@@ -40,42 +40,29 @@ public class RSA {
         return kp;
     }
     
-    public static PublicKey getPublicKeyRSA(String filename) throws Exception {
-        PublicKey pk = null;
+    public static byte[] getKeyFileRSA(String filename)  {
+        byte[] keyBytes = null;
         try{
             FileInputStream fis = new FileInputStream(filename);
-            byte[] keyBytes = new byte[fis.available()];
+            keyBytes = new byte[fis.available()];
             fis.read(keyBytes);
             fis.close();
-            X509EncodedKeySpec spec =new X509EncodedKeySpec(keyBytes);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            pk=kf.generatePublic(spec);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return pk;
-    }
-    public static PrivateKey getPrivateKeyRSA(String filename) throws Exception {
-        PrivateKey pk = null;        
-        try{
-            FileInputStream fis = new FileInputStream(filename);
-            byte[] keyBytes = new byte[fis.available()];
-            fis.read(keyBytes);
-            fis.close();
-            PKCS8EncodedKeySpec  spec = new PKCS8EncodedKeySpec(keyBytes);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            pk=kf.generatePrivate(spec);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return pk;
+        return keyBytes;
     }
     
     
     
-    public static String EncryptionRSA(String message, PublicKey publicKey) {
+    public static String EncryptionRSA(String message, byte[] keyBytes) {
         String cipherText = "";
         try{
+            X509EncodedKeySpec spec =new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PublicKey publicKey  = kf.generatePublic(spec);
+            
             Cipher c = Cipher.getInstance("RSA");
             c.init(Cipher.ENCRYPT_MODE, publicKey);
             String msg = "helloworld";
@@ -86,9 +73,13 @@ public class RSA {
         }
         return cipherText;
     }
-    public static String DecryptionRSA(String strEncrypt, PrivateKey privateKey) {
+    public static String DecryptionRSA(String strEncrypt, byte[] keyBytes ) {
         String plainText = "";
         try{
+            PKCS8EncodedKeySpec  spec = new PKCS8EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = kf.generatePrivate(spec);
+            
             Cipher c = Cipher.getInstance("RSA");
             c.init(Cipher.DECRYPT_MODE, privateKey);
             byte decryptOut[] = c.doFinal(Base64.getDecoder().decode(strEncrypt));

@@ -1,6 +1,7 @@
 package com.client.chatwindow;
 
 import com.client.login.MainLauncher;
+import com.cryptography.*;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.messages.Message;
@@ -42,7 +43,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -52,6 +57,7 @@ import javafx.event.EventHandler;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javax.crypto.SecretKey;
 
 public class ChatController implements Initializable {
 
@@ -114,6 +120,8 @@ public class ChatController implements Initializable {
     private FileChooser fileChooseKey;
     private File fileKey;
     private byte [] byteKey;
+    public ArrayList<User> listUser;
+    
     
     public void setListener(Listener ls) {
         this.listener = ls;
@@ -171,6 +179,12 @@ public class ChatController implements Initializable {
 
     public void setUserList(Message msg) {
         logger.info("setUserList() method Enter");
+        listUser = msg.getUsers();
+//        for (int i = 0; i < listUser.size(); i++) {
+//            User us= listUser.get(i);
+//            String publicKeyRSA = Base64.getEncoder().encodeToString(us.getCrypt().getListKey().get(0));
+//            logger.info(us.getName() + "\n" + publicKeyRSA);
+//        }
         Platform.runLater(() -> {
             ObservableList<User> users = FXCollections.observableList(msg.getUsers());
             userList.setItems(users);
@@ -233,32 +247,32 @@ public class ChatController implements Initializable {
                 }
             }
         });
-        cryptCombox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if(newValue.equals("Không mã hóa")){
-                    keyComboBox.setVisible(false);
-                    paneChooseFile.setVisible(false);
-                    textLabel.setVisible(false);
-                }
-                else{
-                    keyComboBox.setVisible(true);
-                    textLabel.setVisible(true);  
-                    switch(newValue){
-                        case "RSA":
-                            
-                            break;
-                        case "DES":
-                            
-                            break;
-                        case "AES":
-                            
-                            break;                            
-                    }
-              
-   
-                }
-            }
-        });
+//        cryptCombox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//                if(newValue.equals("Không mã hóa")){
+//                    keyComboBox.setVisible(false);
+//                    paneChooseFile.setVisible(false);
+//                    textLabel.setVisible(false);
+//                }
+//                else{
+//                    keyComboBox.setVisible(true);
+//                    textLabel.setVisible(true);  
+//                    switch(newValue){
+//                        case "RSA":
+//                            
+//                            break;
+//                        case "DES":
+//                            
+//                            break;
+//                        case "AES":
+//                            
+//                            break;                            
+//                    }
+//              
+//   
+//                }
+//            }
+//        });
         keyComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if(newValue.equals("Không")){
@@ -531,24 +545,64 @@ public class ChatController implements Initializable {
         showInfo(userNow,"Success !!!");
     }
     
-    
+    // trao doi khoa 23/2/2019
     @FXML
     void saveButtonAction(ActionEvent event) {
-        if (cryptCombox.getValue().toString().equals("Không mã hóa")){
-            updatePaneInfomationCrypt("Không mã hóa", "Chưa có");
+        String nameAlgo = cryptCombox.getValue().toString();
+        switch(nameAlgo){
+            case "RSA":
+                if(keyComboBox.getValue().toString().equals("Không")){        
+                 
+                }
+                else{
+                    listener.crypt.setNameAlgorithm("RSA");
+                    KeyPair kp = RSA.createKeyRSA();                    
+                    ArrayList<byte[]> listKey =  listener.crypt.getListKey();
+                    listKey.add(4,kp.getPublic().getEncoded());
+                    listKey.add(5,kp.getPrivate().getEncoded());
+                }
+                break;
+            case "DES":
+                if(keyComboBox.getValue().toString().equals("Không")){        
+                  
+                }
+                else{
+                    listener.crypt.setNameAlgorithm("DES");
+                    SecretKey kp = DES.createKeyDES();                    
+                    ArrayList<byte[]> listKey =  listener.crypt.getListKey();
+                    listKey.add(4,kp.getEncoded());
+                    listKey.add(5,null);                      
+                }        
+                break;
+            case "AES":
+                if(keyComboBox.getValue().toString().equals("Không")){        
+                
+                }
+                else{
+                    listener.crypt.setNameAlgorithm("AES");
+                    SecretKey kp = AES.createKeyAES();                    
+                    ArrayList<byte[]> listKey =  listener.crypt.getListKey();
+                    listKey.add(4,kp.getEncoded());
+                    listKey.add(5,null);                      
+                }        
+                break;                
+        }
+
+        if(keyComboBox.getValue().toString().equals("Không")){                
+            updatePaneInfomationCrypt(cryptCombox.getValue().toString(), fileKey.getName());
         }
         else{
-            if(keyComboBox.getValue().toString().equals("Không")){                
-                updatePaneInfomationCrypt(cryptCombox.getValue().toString(), fileKey.getName());
-            }
-            else{
-                updatePaneInfomationCrypt(cryptCombox.getValue().toString(), "Tự động tạo");                
-            }
-        }
+            updatePaneInfomationCrypt(cryptCombox.getValue().toString(), "Tự động tạo");                
+        }        
+        
+        Message msg = new Message();
+        listener.sendToMessEXCHANGE_KEY_Lan1();// send message to user
+        
         btnChangeCrypt.setVisible(true);
         paneChange.setVisible(false);     
         fileKey = null;
     }
+    
     @FXML    
     void changeButtonAction(ActionEvent event) {
         btnChangeCrypt.setVisible(false);
@@ -559,7 +613,7 @@ public class ChatController implements Initializable {
         algoLabel.setText("Giải thuật mã hóa: " + giaithuat );
         keyLabel.setText("Key: " + key );
     }
-    
+
     @FXML
     void btnChooseFileAction(ActionEvent event) {
         fileChooseKey = new FileChooser();

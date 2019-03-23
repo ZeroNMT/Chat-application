@@ -5,6 +5,7 @@
 */
 package com.cryptography;
 
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -12,6 +13,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,9 +38,13 @@ public class DSA {
         return kp;
     }
     
-    public static byte[] EncryptionDSA(byte[] message, PrivateKey privateKey) {
+    public static byte[] EncryptionDSA(byte[] message, byte[] privateKeyByte) {
         byte[] bSignature = null;
         try{
+            PKCS8EncodedKeySpec  spec = new PKCS8EncodedKeySpec(privateKeyByte);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = kf.generatePrivate(spec);
+            
             Signature signature = Signature.getInstance("SHA512withRSA");
             signature.initSign(privateKey);         
             signature.update(message);            
@@ -48,10 +55,15 @@ public class DSA {
         return bSignature;                   
     } 
 
-    public static boolean DecryptionDSA_verifySign(byte [] strEncrypt, byte[] sign , PublicKey publicKey)  {
+    public static boolean DecryptionDSA_verifySign(byte [] strEncrypt, byte[] sign , byte[] punlicKeyBytes)  {
         boolean result = true;
         try{
             Signature signature = Signature.getInstance("SHA512withRSA");
+            
+            X509EncodedKeySpec spec =new X509EncodedKeySpec(punlicKeyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PublicKey publicKey  = kf.generatePublic(spec);
+            
             signature.initVerify(publicKey);
             signature.update(strEncrypt);            
             result = signature.verify(sign);         

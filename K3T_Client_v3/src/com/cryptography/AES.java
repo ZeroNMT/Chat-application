@@ -27,23 +27,23 @@ public class AES {
         }
         return secretKey;
     }
-    public static SecretKey getSecretKeyAES(String filename) {
-        SecretKey secretKey = null;
+    public static byte[] getSecretKeyAES(String filename) {
+        byte[] secretKeyByte = null;
         try{
             FileInputStream fis = new FileInputStream(filename);
-            byte[] keyBytes = new byte[fis.available()];
-            fis.read(keyBytes);
+            secretKeyByte = new byte[fis.available()];
+            fis.read(secretKeyByte);
             fis.close();
-            secretKey = new SecretKeySpec(keyBytes,"AES");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return secretKey;
+        return secretKeyByte;
     }
     
-    public static String EncryptionAES(String message, SecretKey secretKey) {
+    public static String EncryptionAES(String message, byte[] secretKeyByte) {
         String cipherText = "";
         try{
+            SecretKey secretKey = new SecretKeySpec(secretKeyByte,"AES");            
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] byteEncrypted = cipher.doFinal(message.getBytes());
@@ -54,9 +54,10 @@ public class AES {
         }
         return cipherText;
     }
-    public static String DecryptionAES(String strEncrypt, SecretKey secretKey) {
+    public static String DecryptionAES(String strEncrypt, byte[] secretKeyByte) {
         String plainText = "";
         try{
+            SecretKey secretKey = new SecretKeySpec(secretKeyByte,"AES");                        
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] byteDecrypted = cipher.doFinal(Base64.getDecoder().decode(strEncrypt));

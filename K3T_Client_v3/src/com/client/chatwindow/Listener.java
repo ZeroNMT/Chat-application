@@ -7,6 +7,7 @@ import com.cryptography.RSA;
 import com.messages.Message;
 import com.messages.MessageType;
 import com.messages.Status;
+import com.messages.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +17,14 @@ import java.net.Socket;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.logging.Level;
 import javafx.concurrent.Task;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import static jdk.nashorn.internal.objects.NativeString.substring;
 
 
 
@@ -120,8 +123,7 @@ public class Listener implements Runnable {
                         case INVITE:
                             acceptRequestConnect(message);
                             break;
-                        case EXCHANGE_KEY:
-                            break;
+
                     }
                 }
             }
@@ -159,6 +161,14 @@ public class Listener implements Runnable {
         createMessage.setPicture(this.picture);
         createMessage.setIp(this.ipAddress);
         createMessage.setPort(this.portListen);
+        ArrayList<byte[]> list = this.crypt.getListKey();
+        
+        Cryptography crypt = new Cryptography();
+        ArrayList<byte[]>  listKey = new ArrayList<byte[]> ();
+        listKey.add(0,list.get(0));
+        listKey.add(1,list.get(1));
+        crypt.setListKey(listKey);
+        createMessage.setCrypt(crypt);
         oos.writeObject(createMessage);
     }
     // Send connect request
@@ -258,7 +268,10 @@ public class Listener implements Runnable {
                                      listview.get(message.getName()).add(message);
                                     if(message.getName().equals(controller.userNow))
                                         controller.updateMgs(message);
-                                    break;                                   
+                                    break;       
+                                case EXCHANGE_KEY:
+                                    exchangeKey(message);
+                                    break;                                    
                             }
                         }
                     }
@@ -317,6 +330,114 @@ public class Listener implements Runnable {
             ossTo.flush();
         } catch (IOException ex) {
             logger.error("Can not send message to : " + username, ex);
+        }
+    }
+
+    public void sendToMessEXCHANGE_KEY_Lan1 (){
+        
+        
+        Message createMessage = new Message();
+        createMessage.setName(this.username);
+        createMessage.setType(MessageType.EXCHANGE_KEY);
+        createMessage.setStatus(Status.AWAY);
+        createMessage.setMsg("Lan1"+crypt.getNameAlgorithm());
+        createMessage.setPicture(this.picture);
+        ArrayList<User> listUser = controller.listUser;
+        for (int i = 0; i < listUser.size(); i++) {
+            User user= listUser.get(i);
+            logger.info("EXCHANGE_KEY message: "+ user.getName());
+            if (user.getName().equals(username)) {
+                continue;
+            }
+            logger.info("EXCHANGE_KEY message222: "+ user.getName());
+            
+            ObjectOutputStream ossTo = senders.get(user.getName());
+            if (ossTo == null){
+                continue;
+            }
+            try {
+                
+                ossTo.writeObject(createMessage);
+                ossTo.flush();
+            } catch (IOException ex) {
+                logger.error("Can not write to : " + user.getName(), ex);
+            } 
+        }        
+    
+    }
+   
+    public void sendToMessEXCHANGE_KEY_Lan2 (){
+        
+        
+        Message createMessage = new Message();
+        createMessage.setName(this.username);
+        createMessage.setType(MessageType.EXCHANGE_KEY);
+        createMessage.setStatus(Status.AWAY);
+        createMessage.setMsg("Lan1"+crypt.getNameAlgorithm());
+        createMessage.setPicture(this.picture);
+        ArrayList<User> listUser = controller.listUser;
+        for (int i = 0; i < listUser.size(); i++) {
+            User user= listUser.get(i);
+            logger.info("EXCHANGE_KEY message: "+ user.getName());
+            if (user.getName().equals(username)) {
+                continue;
+            }
+            logger.info("EXCHANGE_KEY message222: "+ user.getName());
+            
+            ObjectOutputStream ossTo = senders.get(user.getName());
+            if (ossTo == null){
+                continue;
+            }
+            try {
+                
+                ossTo.writeObject(createMessage);
+                ossTo.flush();
+            } catch (IOException ex) {
+                logger.error("Can not write to : " + user.getName(), ex);
+            } 
+        }        
+    
+    }    
+    public void sendToMessEXCHANGE_KEY_Lan3 (){
+        
+        
+        Message createMessage = new Message();
+        createMessage.setName(this.username);
+        createMessage.setType(MessageType.EXCHANGE_KEY);
+        createMessage.setStatus(Status.AWAY);
+        createMessage.setMsg("Lan1"+crypt.getNameAlgorithm());
+        createMessage.setPicture(this.picture);
+        ArrayList<User> listUser = controller.listUser;
+        for (int i = 0; i < listUser.size(); i++) {
+            User user= listUser.get(i);
+            logger.info("EXCHANGE_KEY message: "+ user.getName());
+            if (user.getName().equals(username)) {
+                continue;
+            }
+            logger.info("EXCHANGE_KEY message222: "+ user.getName());
+            
+            ObjectOutputStream ossTo = senders.get(user.getName());
+            if (ossTo == null){
+                continue;
+            }
+            try {
+                
+                ossTo.writeObject(createMessage);
+                ossTo.flush();
+            } catch (IOException ex) {
+                logger.error("Can not write to : " + user.getName(), ex);
+            } 
+        }        
+    
+    }    
+    
+    public  void exchangeKey(Message msg){
+        String num = msg.getMsg().substring(0,4);      
+        if (num.equals("Lan1")){
+            logger.info("exchange key ..............");
+        }
+        else{
+            
         }
     }
 }

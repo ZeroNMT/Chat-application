@@ -1,5 +1,6 @@
 package com.messages;
 
+import com.cryptography.Cryptography;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,11 +17,26 @@ public class Message implements Serializable {
     private String picture = "default";
     String ipAddress;
     String portListen;
-
+    private Cryptography crypt;
+    private ArrayList<String> listAlgorithm;
     //send file
     private byte [] byteArray;
     
-
+    public ArrayList<String> getAlgorithm() {
+        return listAlgorithm;
+    }
+    public void setAlgorithm(ArrayList<String> listAlgorithm) {
+        this.listAlgorithm = listAlgorithm;
+    }
+    
+    
+    public Cryptography getCrypt(){
+    return crypt;    
+    }
+    public void setCrypt(Cryptography crypt){
+        this.crypt = crypt;
+    }
+    
     // byteArray
     public void setByteArray(byte[] byteArray) {
         this.byteArray = byteArray;

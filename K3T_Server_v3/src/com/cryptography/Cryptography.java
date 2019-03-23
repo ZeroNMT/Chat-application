@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 
 public class Cryptography implements Serializable {
-    private Algorithm nameAlgorithm;
+    private String nameAlgorithm;
     private ArrayList<byte[]> listKey ;    
     // no 1: public key RSA
     // no 2: public key DSA
@@ -21,10 +21,10 @@ public class Cryptography implements Serializable {
     // no 5,6: key of nameAlgorithm
     
     //Name Algorithm
-    public Algorithm getNameAlgorithm() {
+    public String getNameAlgorithm() {
         return nameAlgorithm;
     }
-    public void setNameAlgorithm(Algorithm nameAlgorithm) {
+    public void setNameAlgorithm(String nameAlgorithm) {
         this.nameAlgorithm = nameAlgorithm;
     }
     

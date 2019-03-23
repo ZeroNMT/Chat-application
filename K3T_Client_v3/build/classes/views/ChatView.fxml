@@ -211,7 +211,6 @@
                         <ComboBox fx:id="cryptCombox" prefHeight="25.0" prefWidth="166.0" promptText="Hãy chọn" stylesheets="@../styles/ComboBox.css">
                            <items>
                               <FXCollections fx:factory="observableArrayList">
-                                  <String fx:value="Không mã hóa" />
                                  <String fx:value="RSA" />
                                  <String fx:value="DES" />
                                   <String fx:value="AES" />
