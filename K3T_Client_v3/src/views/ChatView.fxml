@@ -259,7 +259,14 @@
             </Pane>
             <Pane fx:id="paneResultCrypt" prefHeight="164.0" prefWidth="220.0">
                <children>
-                  <VBox layoutY="39.0" />
+                  <VBox alignment="BOTTOM_CENTER" layoutY="69.0" prefHeight="0.0" prefWidth="221.0">
+                     <children>
+                        <JFXButton fx:id="btnResultCrypt" onAction="#btnResultCryptAction" prefHeight="25.0" prefWidth="132.0" style="-fx-background-color: #007bff;" text="Kết quả mã hóa">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXButton>
+                     </children></VBox>
                </children>
             </Pane>
          </children>

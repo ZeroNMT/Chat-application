@@ -1,7 +1,9 @@
 package com.client.chatwindow;
 
 import com.client.login.LoginController;
+import com.cryptography.AES;
 import com.cryptography.Cryptography;
+import com.cryptography.DES;
 import com.cryptography.DSA;
 import com.cryptography.RSA;
 import com.messages.Message;
@@ -41,7 +43,7 @@ public class Listener implements Runnable {
     public  String portListen;
     public  String ipAddress;
     public Cryptography crypt;
-    
+    public ArrayList<User> listCryptUser;
     private static ObjectOutputStream oos;
     private InputStream is;
     private ObjectInputStream input;
@@ -51,7 +53,7 @@ public class Listener implements Runnable {
     public ServerSocket subserver; // Them boi Thoai ngay 13/10/18 9:17pm
     public HashMap<String, ObjectOutputStream> senders;// Them boi Thoai ngay 13/10/18 9:17pm
     public HashMap<String, ArrayList<Message>> listview;// Them boi Thoai ngay 13/10/18 9:17pm
- 
+    public String resultCrypt;
     
 
     public Listener(String hostname, int port, String username, String picture,String portListen,String ipAddress, ChatController controller)  {
@@ -72,8 +74,10 @@ public class Listener implements Runnable {
             listKey.add(2,keyRSA.getPrivate().getEncoded());
             listKey.add(3,KeyDSA.getPrivate().getEncoded());
             crypt.setListKey(listKey);
+            resultCrypt = "";
         
             this.crypt = crypt;
+            listCryptUser = new ArrayList<User>();
         } catch (Exception ex) {
             ex.printStackTrace();
         }        
@@ -238,6 +242,30 @@ public class Listener implements Runnable {
         if(name.equals(controller.userNow))
             controller.addToChat(createMessage);  
         
+        
+        switch(crypt.getNameAlgorithm()){
+            case "AES":
+                byte[] sercetKeyByteAES = crypt.getListKey().get(4);
+                msg = AES.EncryptionAES(msg, sercetKeyByteAES);
+                break;
+            case "DES":
+                byte[] sercetKeyByteDES = crypt.getListKey().get(4);
+                msg = DES.EncryptionDES(msg, sercetKeyByteDES);
+                break;                    
+            case "RSA":
+                byte[] publicKeyByte=null;
+                for ( int i = 0; i < listCryptUser.size(); i++) {
+                    if (listCryptUser.get(i).getName().equals(controller.userNow) ){
+                        publicKeyByte = listCryptUser.get(i).getCrypt().getListKey().get(0);
+                        break;
+                    }
+                 }   
+                msg = RSA.EncryptionRSA2(msg, publicKeyByte);
+                break;
+        }        
+        resultCrypt = msg;
+        createMessage.setMsg(msg);
+        
         ObjectOutputStream ossTo = senders.get(name);
         try {
             ossTo.writeObject(createMessage);
@@ -246,7 +274,23 @@ public class Listener implements Runnable {
             logger.error("Can not write to : " + name, ex);
         }     
     }
-
+    public String DecryptionMessage(String nameAlgo, String ciphetText, byte[] keyByte){
+        String msg ="";
+        switch(nameAlgo){
+            case "AES":
+                msg = AES.DecryptionAES(ciphetText, keyByte);
+                break;
+            case "DES":
+                msg = DES.DecryptionDES(ciphetText, keyByte);
+                break;                    
+            case "RSA":
+                msg = RSA.DecryptionRSA2(ciphetText, crypt.getListKey().get(2));
+                break;
+            default:
+                break;
+        }
+        return msg;
+    }
    
     public void handleConnection(Socket socket, ObjectInputStream input) {
         new Thread(new Runnable() {
@@ -257,9 +301,26 @@ public class Listener implements Runnable {
                         Message message = null;
                         message = (Message) input.readObject();
                         if (message != null) {
-                            logger.info("Message recieved: " + message.getMsg() + " MessageType: " + message.getType() + " Name: " + message.getName());
+                            logger.info("Message recieved: " + " MessageType: " + message.getType() + " Name: " + message.getName());
                             switch (message.getType()) {
                                 case USER :
+                                    logger.info(message.getMsg() );
+                                    String msg = message.getMsg();
+                                    String nameUserSend = message.getName();
+                                    byte[] keyByte = null;
+                                    String nameAlgo = "";
+                                    for ( int i = 0; i < listCryptUser.size(); i++) {
+                                        if (listCryptUser.get(i).getName().equals(nameUserSend) ){
+                                            nameAlgo = listCryptUser.get(i).getCrypt().getNameAlgorithm();
+                                            keyByte = listCryptUser.get(i).getCrypt().getListKey().get(2);
+                                            break;
+                                        }
+                                    }   
+                                    if (nameAlgo!=""){
+                                        msg = DecryptionMessage(nameAlgo, msg, keyByte);
+                                        message.setMsg(msg);
+                                    }
+ 
                                     listview.get(message.getName()).add(message);
                                     if(message.getName().equals(controller.userNow))
                                         controller.updateMgs(message);
@@ -405,10 +466,12 @@ public class Listener implements Runnable {
         }
         else{
             listKey.add(2,exChangeKey);
-            controller.listUser.get(i).setCrypt(new Cryptography(nameAlgo,listKey));
-
+            User user=new User();
+            user.setName(nameUserSend);
+            user.setCrypt(new Cryptography(nameAlgo,listKey));
+            listCryptUser.add(user);
         }
-
+        
 
     }
     

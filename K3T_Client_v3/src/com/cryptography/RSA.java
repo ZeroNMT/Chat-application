@@ -55,7 +55,39 @@ public class RSA {
     }
     
     
-    
+        public static String EncryptionRSA2(String message, byte[] keyBytes) {
+        String cipherText = "";
+        try{
+            X509EncodedKeySpec spec =new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PublicKey publicKey  = kf.generatePublic(spec);
+            
+            Cipher c = Cipher.getInstance("RSA");
+            c.init(Cipher.ENCRYPT_MODE, publicKey);
+            String msg = "helloworld";
+            byte encryptOut[] = c.doFinal(message.getBytes());
+            cipherText =  Base64.getEncoder().encodeToString(encryptOut);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cipherText;
+    }
+    public static String DecryptionRSA2(String strEncrypt, byte[] keyBytes ) {
+        String plainText = "";
+        try{
+            PKCS8EncodedKeySpec  spec = new PKCS8EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = kf.generatePrivate(spec);
+            
+            Cipher c = Cipher.getInstance("RSA");
+            c.init(Cipher.DECRYPT_MODE, privateKey);
+            byte decryptOut[] = c.doFinal(Base64.getDecoder().decode(strEncrypt));
+            plainText = new String(decryptOut);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return plainText;
+    }        
     public static byte[] EncryptionRSA(byte[] message, byte[] keyBytes) {
         byte[] cipherText = null;
         try{

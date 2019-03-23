@@ -276,7 +276,8 @@ public class ChatController implements Initializable {
         keyComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if(newValue.equals("Không")){
-                    paneChooseFile.setVisible(true);
+                        paneChooseFile.setVisible(true);                        
+                    
                 }
                 else{
                     paneChooseFile.setVisible(false);
@@ -526,7 +527,9 @@ public class ChatController implements Initializable {
                     }
                 }
             }
-            messageBox.clear();            
+            messageBox.clear();   
+
+
             listener.sendTo(msg,userNow);// send message to user
         }
         else if (!messageBox.getText().isEmpty()&&userNow=="") {
@@ -549,42 +552,50 @@ public class ChatController implements Initializable {
     @FXML
     void saveButtonAction(ActionEvent event) {
         String nameAlgo = cryptCombox.getValue().toString();
+        ArrayList<byte[]> listKey =  listener.crypt.getListKey();                    
+
         switch(nameAlgo){
             case "RSA":
-                if(keyComboBox.getValue().toString().equals("Không")){        
-                 
+                if(keyComboBox.getValue().toString().equals("Không")){   
+
+                            
+                       
                 }
                 else{
                     listener.crypt.setNameAlgorithm("RSA");
                     KeyPair kp = RSA.createKeyRSA(512);                    
-                    ArrayList<byte[]> listKey =  listener.crypt.getListKey();
+                    listKey =  listener.crypt.getListKey();
                     listKey.add(4,kp.getPublic().getEncoded());
                     listKey.add(5,kp.getPrivate().getEncoded());
                     listener.crypt.setListKey(listKey);
                 }
                 break;
             case "DES":
+                byte [] keyByte = null;
                 if(keyComboBox.getValue().toString().equals("Không")){        
-                  
+                    if(fileKey!=null){
+                        keyByte =  DES.getSecretKeyAES(fileKey.getAbsolutePath());
+                        logger.info(fileKey.getAbsolutePath());
+                    }                    
                 }
                 else{
                     listener.crypt.setNameAlgorithm("DES");
                     SecretKey kp = DES.createKeyDES();                    
-                    ArrayList<byte[]> listKey =  listener.crypt.getListKey();
-                    listKey.add(4,kp.getEncoded());
-                    listKey.add(5,null);       
-                    listener.crypt.setListKey(listKey);
-                    
+                    keyByte = kp.getEncoded();                    
                 }        
+                    listKey.add(4,keyByte);
+                    listKey.add(5,null);       
+                    listener.crypt.setListKey(listKey);                
                 break;
             case "AES":
                 if(keyComboBox.getValue().toString().equals("Không")){        
-                
+                    if(fileKey!=null){
+                        keyByte =  AES.getSecretKeyAES(fileKey.getAbsolutePath());
+                    }                    
                 }
                 else{
                     listener.crypt.setNameAlgorithm("AES");
                     SecretKey kp = AES.createKeyAES();                    
-                    ArrayList<byte[]> listKey =  listener.crypt.getListKey();
                     listKey.add(4,kp.getEncoded());
                     listKey.add(5,null);      
                     listener.crypt.setListKey(listKey);
@@ -605,13 +616,21 @@ public class ChatController implements Initializable {
         
         btnChangeCrypt.setVisible(true);
         paneChange.setVisible(false);     
-        fileKey = null;
+        paneResultCrypt.setVisible(true);
+        
     }
     
     @FXML    
     void changeButtonAction(ActionEvent event) {
-        btnChangeCrypt.setVisible(false);
-        paneChange.setVisible(true);
+        if(userNow != ""){
+            btnChangeCrypt.setVisible(false);
+            paneChange.setVisible(true);            
+        }
+        else{
+            showInfo("Notice to "+listener.username, "Please connect with anyone !!!");
+            
+        }
+
     }   
     
     void updatePaneInfomationCrypt(String giaithuat, String key){
@@ -621,12 +640,38 @@ public class ChatController implements Initializable {
 
     @FXML
     void btnChooseFileAction(ActionEvent event) {
+     
         fileChooseKey = new FileChooser();
         fileKey = fileChooseKey.showOpenDialog(MainLauncher.getPrimaryStage());
         if(fileKey!=null)
-        {
-            byteKey  = new byte [(int)file.length()];
+        {            
             nameFileLabel.setText(fileKey.getName());
         }
     }
+
+    @FXML
+    void btnResultCryptAction(ActionEvent event) {
+        if (listener.resultCrypt != ""){
+            FileChooser fileSaver = new FileChooser();
+            fileSaver.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text File",
+                        "*.txt")
+            );
+            File file = fileSaver.showSaveDialog(MainLauncher.getPrimaryStage());
+            if(file!=null)
+            {
+                try {
+                    logger.info(file.getAbsolutePath());
+                    byte [] byteA=   Base64.getDecoder().decode(listener.resultCrypt);
+                    saveFile(file.getAbsolutePath(), byteA);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                } 
+            }
+        }                
+        else{
+            showInfo("Notice to "+listener.username, "Please send message with anyone !!!");
+
+        }
+    }    
 }
