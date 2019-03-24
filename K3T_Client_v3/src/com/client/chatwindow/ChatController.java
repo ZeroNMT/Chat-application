@@ -553,56 +553,54 @@ public class ChatController implements Initializable {
     void saveButtonAction(ActionEvent event) {
         String nameAlgo = cryptCombox.getValue().toString();
         ArrayList<byte[]> listKey =  listener.crypt.getListKey();                    
-
+        byte [] keyByte = null;
+        logger.info("----------------------------------------=---------------------------------------------");        
+        logger.info("---------------------------------------- START EXCHANGE KEY --------------------------");
+        logger.info("----------------------------------------=---------------------------------------------");        
+        
         switch(nameAlgo){
             case "RSA":
-                if(keyComboBox.getValue().toString().equals("Không")){   
-
-                            
-                       
-                }
-                else{
-                    listener.crypt.setNameAlgorithm("RSA");
-                    KeyPair kp = RSA.createKeyRSA(512);                    
-                    listKey =  listener.crypt.getListKey();
-                    listKey.add(4,kp.getPublic().getEncoded());
-                    listKey.add(5,kp.getPrivate().getEncoded());
-                    listener.crypt.setListKey(listKey);
-                }
+                listener.crypt.setNameAlgorithm("RSA");
+                KeyPair kp = RSA.createKeyRSA(512);                    
+                listKey =  listener.crypt.getListKey();
+                listKey.add(4,kp.getPublic().getEncoded());
+                listKey.add(5,kp.getPrivate().getEncoded());                
                 break;
             case "DES":
-                byte [] keyByte = null;
-                if(keyComboBox.getValue().toString().equals("Không")){        
+                listener.crypt.setNameAlgorithm("DES");                
+                if(keyComboBox.getValue().toString().equals("Không")){   
                     if(fileKey!=null){
                         keyByte =  DES.getSecretKeyAES(fileKey.getAbsolutePath());
-                        logger.info(fileKey.getAbsolutePath());
+                        logger.info("File key dang load:"+ fileKey.getAbsolutePath());
                     }                    
                 }
                 else{
-                    listener.crypt.setNameAlgorithm("DES");
-                    SecretKey kp = DES.createKeyDES();                    
-                    keyByte = kp.getEncoded();                    
+                    SecretKey kp1 = DES.createKeyDES();                    
+                    keyByte = kp1.getEncoded();                    
                 }        
+                    logger.info("Key DES se exchange: " + Base64.getEncoder().encodeToString(keyByte));        
                     listKey.add(4,keyByte);
                     listKey.add(5,null);       
-                    listener.crypt.setListKey(listKey);                
                 break;
             case "AES":
+                listener.crypt.setNameAlgorithm("AES");                
                 if(keyComboBox.getValue().toString().equals("Không")){        
                     if(fileKey!=null){
+                        logger.info("CHAY  FILE");                                            
                         keyByte =  AES.getSecretKeyAES(fileKey.getAbsolutePath());
                     }                    
                 }
                 else{
-                    listener.crypt.setNameAlgorithm("AES");
-                    SecretKey kp = AES.createKeyAES();                    
-                    listKey.add(4,kp.getEncoded());
-                    listKey.add(5,null);      
-                    listener.crypt.setListKey(listKey);
-                    
+                    SecretKey kp2 = AES.createKeyAES();                    
+                    keyByte = kp2.getEncoded();
                 }        
+                    logger.info("Key AES se exchange: "+Base64.getEncoder().encodeToString(keyByte));        
+                
+                    listKey.add(4,keyByte);
+                    listKey.add(5,null);      
                 break;                
         }
+        listener.crypt.setListKey(listKey);
 
         if(keyComboBox.getValue().toString().equals("Không")){                
             updatePaneInfomationCrypt(cryptCombox.getValue().toString(), fileKey.getName());
@@ -627,8 +625,7 @@ public class ChatController implements Initializable {
             paneChange.setVisible(true);            
         }
         else{
-            showInfo("Notice to "+listener.username, "Please connect with anyone !!!");
-            
+            showInfo("Notice to "+listener.username, "Please connect with anyone !!!");            
         }
 
     }   
@@ -646,7 +643,20 @@ public class ChatController implements Initializable {
         if(fileKey!=null)
         {            
             nameFileLabel.setText(fileKey.getName());
+            byte[]   keyByte =  DES.getSecretKeyAES(fileKey.getAbsolutePath());
+            logger.info( "Dung luong file la :"+ String.valueOf(keyByte.length));
+            if(cryptCombox.getValue().toString().equals("DES")){  
+                if(keyByte.length != 8){
+                    showInfo("Notice to "+userNow, "The file you are selecting has a capacity of "+String.valueOf(keyByte.length)+" byte \n File Key DES must 8 byte (64 bit) !!!! ");
+                }
+            }
+            if(cryptCombox.getValue().toString().equals("AES")){  
+                if(keyByte.length != 16 && keyByte.length != 24 && keyByte.length != 32){
+                    showInfo("Notice to "+userNow, "The file you are selecting has a capacity of "+String.valueOf(keyByte.length)+" byte \n File Key AES must 128 bit or 192 bit or 256 bit !!!!");
+                }   
+            }
         }
+        
     }
 
     @FXML
