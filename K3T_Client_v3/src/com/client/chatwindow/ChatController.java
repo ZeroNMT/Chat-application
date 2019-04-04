@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -121,6 +122,10 @@ public class ChatController implements Initializable {
     private File fileKey;
     private byte [] byteKey;
     public ArrayList<User> listUser;
+    @FXML
+     Pane paneDecrypt;
+    @FXML
+     Pane paneEncrypt;
     
     
     public void setListener(Listener ls) {
@@ -218,6 +223,8 @@ public class ChatController implements Initializable {
             paneChange.setVisible(false);
             paneResultCrypt.setVisible(false);
             paneChooseFile.setVisible(false);
+            paneEncrypt.setVisible(false);
+            paneDecrypt.setVisible(false);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -247,32 +254,7 @@ public class ChatController implements Initializable {
                 }
             }
         });
-//        cryptCombox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//                if(newValue.equals("Không mã hóa")){
-//                    keyComboBox.setVisible(false);
-//                    paneChooseFile.setVisible(false);
-//                    textLabel.setVisible(false);
-//                }
-//                else{
-//                    keyComboBox.setVisible(true);
-//                    textLabel.setVisible(true);  
-//                    switch(newValue){
-//                        case "RSA":
-//                            
-//                            break;
-//                        case "DES":
-//                            
-//                            break;
-//                        case "AES":
-//                            
-//                            break;                            
-//                    }
-//              
-//   
-//                }
-//            }
-//        });
+
         keyComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if(newValue.equals("Không")){
@@ -499,17 +481,22 @@ public class ChatController implements Initializable {
         file = fileChooser.showOpenDialog(MainLauncher.getPrimaryStage());
         if(file!=null)
         {
+            
             byteArray  = new byte [(int)file.length()];
             messageBox.setText(file.getName()+" is sent !");
-            this.showInfo(userNow, "Choose file successly !!!");
+            if (byteArray.length > 50*Math.pow(2,20)){
+                this.showInfo(userNow, "Choose file < 50  Mega byte");
+                
+            }
         }
     }
     
     public void sendButtonAction() throws IOException {
         String msg = messageBox.getText();
         if(file!=null&&userNow!=""){
-            messageBox.clear();                        
-            listener.sendFile(byteArray,file,userNow);
+            messageBox.clear(); 
+            listener.sendFile(byteArray, file, userNow);
+           
             file=null;
             byteArray=null;
         }
@@ -564,7 +551,9 @@ public class ChatController implements Initializable {
                 KeyPair kp = RSA.createKeyRSA(512);                    
                 listKey =  listener.crypt.getListKey();
                 listKey.add(4,kp.getPublic().getEncoded());
-                listKey.add(5,kp.getPrivate().getEncoded());                
+                listKey.add(5,kp.getPrivate().getEncoded());   
+                logger.info("Key RSA se exchange: "+Base64.getEncoder().encodeToString(kp.getPublic().getEncoded()));        
+                
                 break;
             case "DES":
                 listener.crypt.setNameAlgorithm("DES");                
@@ -636,8 +625,7 @@ public class ChatController implements Initializable {
     }
 
     @FXML
-    void btnChooseFileAction(ActionEvent event) {
-     
+    void btnChooseFileAction(ActionEvent event) {     
         fileChooseKey = new FileChooser();
         fileKey = fileChooseKey.showOpenDialog(MainLauncher.getPrimaryStage());
         if(fileKey!=null)
@@ -661,7 +649,7 @@ public class ChatController implements Initializable {
 
     @FXML
     void btnResultCryptAction(ActionEvent event) {
-        if (listener.resultCrypt != ""){
+        if (listener.resultCrypt != null){
             FileChooser fileSaver = new FileChooser();
             fileSaver.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Text File",
@@ -672,8 +660,7 @@ public class ChatController implements Initializable {
             {
                 try {
                     logger.info(file.getAbsolutePath());
-                    byte [] byteA=   Base64.getDecoder().decode(listener.resultCrypt);
-                    saveFile(file.getAbsolutePath(), byteA);
+                    saveFile(file.getAbsolutePath(), listener.resultCrypt);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } 

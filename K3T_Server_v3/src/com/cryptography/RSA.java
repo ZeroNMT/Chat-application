@@ -9,12 +9,15 @@ import java.io.FileInputStream;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.Cipher;
 
 /**
@@ -94,6 +97,7 @@ public class RSA {
             
             Cipher c = Cipher.getInstance("RSA");
             c.init(Cipher.ENCRYPT_MODE, publicKey);
+            String msg = "helloworld";
             cipherText = c.doFinal(message);
             //cipherText =  Base64.getEncoder().encodeToString(encryptOut);
         } catch (Exception e) {

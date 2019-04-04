@@ -257,16 +257,44 @@
                   </VBox>
                </children>
             </Pane>
-            <Pane fx:id="paneResultCrypt" prefHeight="164.0" prefWidth="220.0">
+            <Pane fx:id="paneResultCrypt" prefHeight="57.0" prefWidth="220.0">
                <children>
-                  <VBox alignment="BOTTOM_CENTER" layoutY="69.0" prefHeight="0.0" prefWidth="221.0">
+                  <VBox alignment="BOTTOM_CENTER" layoutY="14.0" prefHeight="0.0" prefWidth="221.0">
                      <children>
                         <JFXButton fx:id="btnResultCrypt" onAction="#btnResultCryptAction" prefHeight="25.0" prefWidth="132.0" style="-fx-background-color: #007bff;" text="Kết quả mã hóa">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </JFXButton>
-                     </children></VBox>
+                     </children>
+                  </VBox>
+               </children></Pane>
+            <Pane fx:id="paneDecrypt" prefHeight="36.0" prefWidth="220.0">
+               <children>
+                  <HBox alignment="TOP_RIGHT" prefHeight="31.0" prefWidth="184.0">
+                     <children>
+                        <FontAwesomeIconView fill="#007bff" glyphName="UNLOCK" size="30" wrappingWidth="46.42857360839844" />
+                        <Label prefHeight="30.0" prefWidth="122.0" text="Đang giải mã">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+            </Pane>
+            <Pane fx:id="paneEncrypt" prefHeight="46.0" prefWidth="220.0">
+               <children>
+                  <HBox alignment="TOP_RIGHT" layoutY="13.0" prefHeight="31.0" prefWidth="191.0">
+                     <children>
+                        <FontAwesomeIconView fill="#007bff" glyphName="UNLOCK_ALT" size="30" wrappingWidth="43.42857360839844" />
+                        <Label prefHeight="30.0" prefWidth="132.0" text="Đang mã hóa">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
                </children>
             </Pane>
          </children>

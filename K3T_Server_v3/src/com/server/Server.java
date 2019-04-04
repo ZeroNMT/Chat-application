@@ -172,7 +172,7 @@ public class Server {
             // Tim ip and port cua user A de gui cho user B
             msg.setIp(inputmsg.getIp());
             msg.setPort(inputmsg.getPort());
-            
+            msg.setAlgorithm(inputmsg.getAlgorithm());
             //Tim ObjectOutputStream cua user B
             if (writers.containsKey(userNeedSendConnect)) {//Kiem tra co hay khong user B
                 ObjectOutputStream writer = writers.get(userNeedSendConnect);

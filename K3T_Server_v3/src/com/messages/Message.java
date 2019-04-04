@@ -45,6 +45,13 @@ public class Message implements Serializable {
         return byteArray;
     }
     
+    private byte [] _byteArray;
+    public void set_ByteArray(byte[] _byteArray) {
+        this._byteArray = _byteArray;
+    }
+    public byte[] get_ByteArray() {
+        return _byteArray;
+    }    
     
     //IP Address
     public String getIp() {

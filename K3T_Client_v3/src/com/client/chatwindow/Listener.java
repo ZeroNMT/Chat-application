@@ -5,6 +5,7 @@ import com.cryptography.AES;
 import com.cryptography.Cryptography;
 import com.cryptography.DES;
 import com.cryptography.DSA;
+import com.cryptography.HMAC;
 import com.cryptography.RSA;
 import com.messages.Message;
 import com.messages.MessageType;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import static java.lang.Thread.sleep;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyPair;
@@ -31,9 +33,9 @@ import static jdk.nashorn.internal.objects.NativeString.substring;
 
 
 public class Listener implements Runnable {
-
+    
     private static final String HASCONNECTED = "has connected";
-
+    
     private  String picture;
     private Socket socket;
     public String hostname;
@@ -49,13 +51,13 @@ public class Listener implements Runnable {
     private ObjectInputStream input;
     private OutputStream outputStream;
     Logger logger = LoggerFactory.getLogger(Listener.class);
-
+    
     public ServerSocket subserver; // Them boi Thoai ngay 13/10/18 9:17pm
     public HashMap<String, ObjectOutputStream> senders;// Them boi Thoai ngay 13/10/18 9:17pm
     public HashMap<String, ArrayList<Message>> listview;// Them boi Thoai ngay 13/10/18 9:17pm
-    public String resultCrypt;
+    public byte[] resultCrypt;
     
-
+    
     public Listener(String hostname, int port, String username, String picture,String portListen,String ipAddress, ChatController controller)  {
         try{
             this.hostname = hostname;
@@ -74,24 +76,24 @@ public class Listener implements Runnable {
             listKey.add(2,keyRSA.getPrivate().getEncoded());
             listKey.add(3,KeyDSA.getPrivate().getEncoded());
             crypt.setListKey(listKey);
-            resultCrypt = "";
-        
+            resultCrypt = null;
+            
             this.crypt = crypt;
             listCryptUser = new ArrayList<User>();
         } catch (Exception ex) {
             ex.printStackTrace();
-        }        
-
+        }
+        
         
     }
-
+    
     public void run() {
         try {
             subserver = new ServerSocket(Integer.parseInt(this.portListen));
             logger.info("Server "+ username+" (Port: "+portListen+" IpAddress: "+ipAddress + ") is running !!!");
             senders = new HashMap<>();
             listview = new HashMap<>();
-
+            
             socket = new Socket(hostname, port);
             LoginController.getInstance().showScene();
             outputStream = socket.getOutputStream();
@@ -104,14 +106,14 @@ public class Listener implements Runnable {
         }
         logger.info("IP " + hostname + ":" +port);
         logger.info("Connection accepted " + socket.getInetAddress() + ":" + socket.getPort());
-
+        
         try {
             connect();//message first
             logger.info("Sockets in and out ready!");
             while (socket.isConnected()) {
                 Message message = null;
                 message = (Message) input.readObject();
-
+                
                 if (message != null) {
                     logger.debug("Message recieved:" + message.getMsg() + " MessageType:" + message.getType() + "Name:" + message.getName());
                     switch (message.getType()) {
@@ -127,7 +129,7 @@ public class Listener implements Runnable {
                         case INVITE:
                             acceptRequestConnect(message);
                             break;
-
+                            
                     }
                 }
             }
@@ -136,14 +138,14 @@ public class Listener implements Runnable {
             controller.logoutScene();
         }
     }
-
-
-
-
-
+    
+    
+    
+    
+    
     /* This method is used for sending a normal Message
- * @param msg - The message which the user generates
- */
+    * @param msg - The message which the user generates
+    */
     public  void sendStatusUpdate(Status status) throws IOException {
         Message createMessage = new Message();
         createMessage.setName(this.username);
@@ -155,7 +157,7 @@ public class Listener implements Runnable {
         oos.writeObject(createMessage);
         oos.flush();
     }
-
+    
     /* Message first*/
     public  void connect() throws IOException {
         Message createMessage = new Message();
@@ -185,17 +187,42 @@ public class Listener implements Runnable {
         createMessage.setPicture(this.picture);
         createMessage.setIp(this.ipAddress);
         createMessage.setPort(this.portListen);
-        oos.writeObject(createMessage);
+//        if(crypt.getListKey().size()!=4){
+//            ArrayList<byte[]> listAlgorithm = new ArrayList<byte[]> ();
+//            listAlgorithm.add(crypt.getNameAlgorithm().getBytes());
+//            ArrayList<User> listUser = controller.listUser;
+//
+//            ArrayList<byte[]> listKey = crypt.getListKey();
+//            byte[] exchangeKey = listKey.get(4);//"234".getBytes();//
+//            byte[] privateKeyByteDSA = listKey.get(3);
+//            byte [] exChangeKeySign = DSA.EncryptionDSA(exchangeKey, privateKeyByteDSA);
+//            byte[] publicKeyByteRSA = null;
+//            for (int i = 0; i < listUser.size(); i++) {
+//                User user= listUser.get(i);
+//                if(user.getName().equals(userNameFriend)){
+//                    publicKeyByteRSA = user.getCrypt().getListKey().get(0);
+//                    break;
+//                }
+//            }
+//            logger.info("Key dang exchange: " + crypt.getNameAlgorithm() +"    "+ Base64.getEncoder().encodeToString(exchangeKey));
+//            byte[] exChangeKeySign_EnRSA = RSA.EncryptionRSA(exChangeKeySign, publicKeyByteRSA);
+//            byte[] exChangeKey_EnRSA = RSA.EncryptionRSA(exchangeKey, publicKeyByteRSA);
+//            listAlgorithm.add(exChangeKey_EnRSA);
+//            listAlgorithm.add(exChangeKeySign_EnRSA);
+//            createMessage.setAlgorithm(listAlgorithm);
+//        }
+
+oos.writeObject(createMessage);
     }
     
-
-
+    
+    
     public boolean isConnected(String userName) {
         return senders.containsKey(userName);
     }
     
     public void createConnect(String name) throws IOException {
-
+        
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -220,16 +247,16 @@ public class Listener implements Runnable {
                 }
             }
         }).start();
-
+        
         sendConnectFriend(name);
-    }      
+    }
     
     
-
+    
     public void sendTo(String msg , String name) {
         
         logger.info("sendTo: "+name+" message: "+msg);
-
+        
         Message createMessage = new Message();
         createMessage.setName(this.username);
         createMessage.setType(MessageType.USER);
@@ -240,11 +267,37 @@ public class Listener implements Runnable {
         listview.get(name).add(createMessage);
         this.controller.cellRender.setTxt(name, createMessage.getMsg());
         if(name.equals(controller.userNow))
-            controller.addToChat(createMessage);  
-        
-        msg = EncryptionMessage(msg);
- 
-        resultCrypt = msg;
+            controller.addToChat(createMessage);
+        String hashValue = "";
+        switch(crypt.getNameAlgorithm()){
+            case "AES":
+                byte[] sercetKeyByteAES = crypt.getListKey().get(4);
+                logger.info("Key AES dung ma hoa: "+Base64.getEncoder().encodeToString(sercetKeyByteAES));
+                hashValue = HMAC.hmacDigest(msg, sercetKeyByteAES);
+                msg = AES.EncryptionAES(msg, sercetKeyByteAES);
+                break;
+            case "DES":
+                byte[] sercetKeyByteDES = crypt.getListKey().get(4);
+                logger.info("Key DES dung ma hoa: "+Base64.getEncoder().encodeToString(sercetKeyByteDES));
+                hashValue = HMAC.hmacDigest(msg, sercetKeyByteDES);
+                msg = DES.EncryptionDES(msg, sercetKeyByteDES);
+                break;
+            case "RSA":
+                byte[] publicKeyByte=null;
+                for ( int i = 0; i < controller.listUser.size(); i++) {
+                    if (controller.listUser.get(i).getName().equals(controller.userNow) ){
+                        publicKeyByte = controller.listUser.get(i).getCrypt().getListKey().get(0);
+                        logger.info("Key RSA dung ma hoa: "+Base64.getEncoder().encodeToString(publicKeyByte));
+                        break;
+                    }
+                }
+                byte[] publicKeyByteNew = crypt.getListKey().get(0);
+                hashValue = HMAC.hmacDigest(msg, publicKeyByteNew);
+                msg = RSA.EncryptionRSA2(msg, publicKeyByte);
+                break;
+        }
+        createMessage.setIp(hashValue);
+        resultCrypt = Base64.getDecoder().decode(msg);
         createMessage.setMsg(msg);
         
         ObjectOutputStream ossTo = senders.get(name);
@@ -253,50 +306,50 @@ public class Listener implements Runnable {
             ossTo.flush();
         } catch (IOException ex) {
             logger.error("Can not write to : " + name, ex);
-        }     
+        }
     }
-    public String EncryptionMessage(String msg){
+    public String EncryptionMessage(String msg, String hashValue){
         switch(crypt.getNameAlgorithm()){
             case "AES":
                 byte[] sercetKeyByteAES = crypt.getListKey().get(4);
-                logger.info("Key AES dung ma hoa: "+Base64.getEncoder().encodeToString(sercetKeyByteAES));                                        
+                logger.info("Key AES dung ma hoa: "+Base64.getEncoder().encodeToString(sercetKeyByteAES));
                 msg = AES.EncryptionAES(msg, sercetKeyByteAES);
                 break;
             case "DES":
                 byte[] sercetKeyByteDES = crypt.getListKey().get(4);
-                logger.info("Key DES dung ma hoa: "+Base64.getEncoder().encodeToString(sercetKeyByteDES));                                        
+                logger.info("Key DES dung ma hoa: "+Base64.getEncoder().encodeToString(sercetKeyByteDES));
                 
                 msg = DES.EncryptionDES(msg, sercetKeyByteDES);
-                break;                    
+                break;
             case "RSA":
                 byte[] publicKeyByte=null;
                 for ( int i = 0; i < controller.listUser.size(); i++) {
                     if (controller.listUser.get(i).getName().equals(controller.userNow) ){
                         publicKeyByte = controller.listUser.get(i).getCrypt().getListKey().get(0);
-                        logger.info("Key RSA dung ma hoa: "+Base64.getEncoder().encodeToString(publicKeyByte));                                                        
-                        break;                        
+                        logger.info("Key RSA dung ma hoa: "+Base64.getEncoder().encodeToString(publicKeyByte));
+                        break;
                     }
-                 }   
+                }
                 msg = RSA.EncryptionRSA2(msg, publicKeyByte);
                 break;
-        }     
+        }
         return msg;
     }
     
     
-    public String DecryptionMessage(String nameAlgo, String ciphetText, byte[] keyByte){
+    public String DecryptionMessage(String nameAlgo, String ciphetText, byte[] keyByte, String hashValue){
         String msg ="";
         switch(nameAlgo){
             case "AES":
-                logger.info("Key AES dung giai ma: "+Base64.getEncoder().encodeToString(keyByte));                        
+                logger.info("Key AES dung giai ma: "+Base64.getEncoder().encodeToString(keyByte));
                 msg = AES.DecryptionAES(ciphetText, keyByte);
                 break;
             case "DES":
-                logger.info("Key DES dung giai ma: "+Base64.getEncoder().encodeToString(keyByte));                                        
+                logger.info("Key DES dung giai ma: "+Base64.getEncoder().encodeToString(keyByte));
                 msg = DES.DecryptionDES(ciphetText, keyByte);
-                break;                    
+                break;
             case "RSA":
-                logger.info("Key RSA  ma hoa cua ben B: "+Base64.getEncoder().encodeToString(crypt.getListKey().get(0)));                                                        
+                logger.info("Key RSA  ma hoa cua ben B: "+Base64.getEncoder().encodeToString(crypt.getListKey().get(0)));
                 msg = RSA.DecryptionRSA2(ciphetText, crypt.getListKey().get(2));
                 break;
             default:
@@ -304,7 +357,7 @@ public class Listener implements Runnable {
         }
         return msg;
     }
-   
+    
     public void handleConnection(Socket socket, ObjectInputStream input) {
         new Thread(new Runnable() {
             @Override
@@ -321,23 +374,56 @@ public class Listener implements Runnable {
                                     String msg = message.getMsg();
                                     String nameUserSend = message.getName();
                                     byte[] keyByte = null;
+                                    byte[] keyByte11111 = null;
+                                    
                                     String nameAlgo = "";
                                     for ( int i = 0; i < listCryptUser.size(); i++) {
                                         if (listCryptUser.get(i).getName().equals(nameUserSend) ){
                                             nameAlgo = listCryptUser.get(i).getCrypt().getNameAlgorithm();
                                             keyByte = listCryptUser.get(i).getCrypt().getListKey().get(2);
+                                            keyByte11111= listCryptUser.get(i).getCrypt().getListKey().get(0);
                                             break;
                                         }
-                                    }   
+                                    }
                                     if (nameAlgo!=""){
-                                        logger.info("---------------Ten giai thua nguoi gui ma hoa: "+nameAlgo+" --------------");                                                                
-                                        msg = DecryptionMessage(nameAlgo, msg, keyByte);
+                                        logger.info("---------------Ten giai thua nguoi gui ma hoa: "+nameAlgo+" --------------");
+                                        String hashValue = message.getIp();
+                                        String hashValueCompare="";
+                                        boolean compareResult= false;
+                                        switch(nameAlgo){
+                                            case "AES":
+                                                logger.info("Key AES dung giai ma: "+Base64.getEncoder().encodeToString(keyByte));
+                                                msg = AES.DecryptionAES(msg, keyByte);
+                                                hashValueCompare = HMAC.hmacDigest(msg, keyByte);
+                                                if(hashValue.equals(hashValueCompare)){
+                                                    compareResult = true;
+                                                }
+                                                break;
+                                            case "DES":
+                                                logger.info("Key DES dung giai ma: "+Base64.getEncoder().encodeToString(keyByte));
+                                                msg = DES.DecryptionDES(msg, keyByte);
+                                                hashValueCompare = HMAC.hmacDigest(msg, keyByte);
+                                                if(hashValue.equals(hashValueCompare)){
+                                                    compareResult = true;
+                                                }
+                                                break;
+                                            case "RSA":
+                                                hashValueCompare = HMAC.hmacDigest(msg, keyByte11111);
+                                                msg = RSA.DecryptionRSA2(msg, crypt.getListKey().get(2));
+                                                compareResult = true;
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        if(compareResult == false){
+                                            controller.showInfo("Notice to "+username, "Tin nhan da bi thay doi !!!");
+                                        }
                                         message.setMsg(msg);
                                     }
                                     else{
                                         logger.info("-------------KHONG LAY DUOC KEY TU NGUOI GUI-----------------");
                                     }
- 
+                                    
                                     listview.get(message.getName()).add(message);
                                     if(message.getName().equals(controller.userNow))
                                         controller.updateMgs(message);
@@ -347,6 +433,7 @@ public class Listener implements Runnable {
                                     String _msg = Base64.getEncoder().encodeToString(message.getByteArray());
                                     String nameUserSend1 = message.getName();
                                     byte[] _keyByte = null;
+                                    byte[] _byte = message.get_ByteArray();
                                     String _nameAlgo = "";
                                     for ( int i = 0; i < listCryptUser.size(); i++) {
                                         if (listCryptUser.get(i).getName().equals(nameUserSend1) ){
@@ -354,23 +441,27 @@ public class Listener implements Runnable {
                                             _keyByte = listCryptUser.get(i).getCrypt().getListKey().get(2);
                                             break;
                                         }
-                                    }   
+                                    }
                                     if (_nameAlgo!=""){
-                                        logger.info("---------------Ten giai thua nguoi gui ma hoa: "+_nameAlgo+" --------------");                                                                
-                                        _msg = DecryptionMessage(_nameAlgo, _msg, _keyByte);
-                                        message.setByteArray(_msg.getBytes());
+                                        controller.paneDecrypt.setVisible(true);
+
+                                        logger.info("---------------Ten giai thua nguoi gui ma hoa: "+_nameAlgo+" --------------");
+                                        _msg = DecryptionMessage(_nameAlgo, _msg, _keyByte,"");
+                                        message.setByteArray(_byte);  
+                                        controller.paneDecrypt.setVisible(false);
+                                        
                                     }
                                     else{
                                         logger.info("-------------KHONG LAY DUOC KEY TU NGUOI GUI-----------------");
-                                    }          
+                                    }
                                     
                                     listview.get(message.getName()).add(message);
                                     if(message.getName().equals(controller.userNow))
                                         controller.updateMgs(message);
-                                    break;       
+                                    break;
                                 case EXCHANGE_KEY:
                                     exchangeKeyMessage(message);
-                                    break;                                    
+                                    break;
                             }
                         }
                     }
@@ -379,30 +470,77 @@ public class Listener implements Runnable {
                     controller.logoutScene();
                 }
             }
-
+            
         }).start();
     }
-
-
+    
+    
     public void acceptRequestConnect(Message message) throws IOException{
         String userSendConnect = message.getMsg();
-
+        
         Socket sock = new Socket(message.getIp(), Integer.parseInt(message.getPort()));
         ObjectOutputStream out = new ObjectOutputStream(sock.getOutputStream());
         senders.put(userSendConnect, out);
         listview.put(userSendConnect, new ArrayList<Message>());
-
+        
         message.setType(MessageType.INVITE);
         message.setName(this.username);//Ten cua client gui
         out.writeObject(message);
         handleConnection(sock,new ObjectInputStream(sock.getInputStream()));
         logger.info("User name: "+userSendConnect+" IP: "+message.getIp()+" Port: "+message.getPort());
         ChatController.showInfo("Notice to "+this.username,"User: "+userSendConnect +" want to connect to you !");
+//
+//        ArrayList<byte[]> listAlgo=  message.getAlgorithm();
+//        String nameAlgo = new String(listAlgo.get(0));
+//        String nameUserSend = userSendConnect;
+//
+//        byte[] privateKeyByteRSA= crypt.getListKey().get(2);
+//        ArrayList<User> listUser = controller.listUser;
+//        byte[] publicKeyByteDSA = null;
+//        int i;
+//        ArrayList<byte[]> listKey = new ArrayList<byte[]>();
+//        for ( i = 0; i < listUser.size(); i++) {
+//            if (listUser.get(i).getName().equals(nameUserSend) ){
+//                listKey = listUser.get(i).getCrypt().getListKey();
+//                publicKeyByteDSA = listKey.get(1);
+//                break;
+//            }
+//        }
+//        logger.info("----------------------Message: EXCHANGE KEY ---------------------------");
+//        byte[] exChangeKey = RSA.DecryptionRSA(listAlgo.get(1), privateKeyByteRSA);
+//        byte[] exChangeKeySign = RSA.DecryptionRSA(listAlgo.get(2), privateKeyByteRSA);
+////            logger.info(Base64.getEncoder().encodeToString(exChangeKeySign));
+////            logger.info(Base64.getEncoder().encodeToString(publicKeyByteDSA));
+//
+//        boolean result = DSA.DecryptionDSA_verifySign(exChangeKey, exChangeKeySign, publicKeyByteDSA);
+//        if(!result){
+//            controller.showInfo(username,"HACKKKKKKKKKK");
+//        }
+//        else{
+//            logger.info("Key giai thuat " + nameAlgo + " da nhan duoc: " + Base64.getEncoder().encodeToString(exChangeKey));
+//            listKey.add(2,exChangeKey);
+//            boolean isYes = false;
+//            for ( int x = 0; x < listCryptUser.size(); x++) {
+//                if (listCryptUser.get(x).getName().equals(nameUserSend) ){
+//                    isYes = true;
+//                    listCryptUser.get(x).setCrypt(new Cryptography(nameAlgo,listKey));
+//                    break;
+//                }
+//            }
+//            if (isYes == false){
+//                User user=new User();
+//                user.setName(nameUserSend);
+//                user.setCrypt(new Cryptography(nameAlgo,listKey));
+//                listCryptUser.add(user);
+//            }
+//        }
+//        sendToMessEXCHANGE_KEY_Lan1();
 
     }
     
     public void sendFile(byte[] byteArray,File file, String username) throws IOException
-    {
+    { 
+        controller.paneEncrypt.setVisible(true);
         //this.messageToSend = message;
         logger.info("sendFIle: "+username+" message:"+file.getName() + " is sent to " +username);
         
@@ -418,11 +556,12 @@ public class Listener implements Runnable {
         bufferedInputStream.read(byteArray,0,byteArray.length);
         createMessage.setByteArray(byteArray);
         
-        String msg = new String(byteArray);
-        String cipherText = EncryptionMessage(msg);
+        String msg = new String(byteArray, "UTF-8");
+        
+        String cipherText = EncryptionMessage(msg,"");
         if (!cipherText.equals(msg)){
-            createMessage.setByteArray(Base64.getDecoder().decode(cipherText));            
-            resultCrypt = cipherText;        
+            createMessage.setByteArray(Base64.getDecoder().decode(cipherText));
+            resultCrypt = Base64.getDecoder().decode(cipherText);
         }
         
         
@@ -430,7 +569,7 @@ public class Listener implements Runnable {
         this.controller.cellRender.setTxt(username, "Send File");
         if(username.equals(controller.userNow))
             controller.addToChat(createMessage);
-        
+        createMessage.set_ByteArray(byteArray);
         ObjectOutputStream ossTo = senders.get(username);
         try {
             ossTo.writeObject(createMessage);
@@ -438,8 +577,10 @@ public class Listener implements Runnable {
         } catch (IOException ex) {
             logger.error("Can not send message to : " + username, ex);
         }
+        controller.paneEncrypt.setVisible(false);
+        
     }
-
+    
     public void sendToMessEXCHANGE_KEY_Lan1 (){
         Message createMessage = new Message();
         createMessage.setName(this.username);
@@ -448,8 +589,8 @@ public class Listener implements Runnable {
         createMessage.setMsg(crypt.getNameAlgorithm());
         createMessage.setPicture(this.picture);
         ArrayList<User> listUser = controller.listUser;
-        logger.info("--------------------sendToMessEXCHANGE_KEY_Lan1--------------------------");        
-
+        logger.info("--------------------sendToMessEXCHANGE_KEY_Lan1--------------------------");
+        
         try {
             
             //Ma hoa key
@@ -457,35 +598,35 @@ public class Listener implements Runnable {
             byte[] exchangeKey = listKey.get(4);//"234".getBytes();//
             byte[] privateKeyByteDSA = listKey.get(3);
             byte [] exChangeKeySign = DSA.EncryptionDSA(exchangeKey, privateKeyByteDSA);
-            logger.info("Key dang exchange: " + crypt.getNameAlgorithm() +"    "+ Base64.getEncoder().encodeToString(exchangeKey));        
+            logger.info("Key dang exchange: " + crypt.getNameAlgorithm() +"    "+ Base64.getEncoder().encodeToString(exchangeKey));
             
             for (int i = 0; i < listUser.size(); i++) {
                 User user= listUser.get(i);
                 ObjectOutputStream ossTo = senders.get(user.getName());
                 if (ossTo == null){
                     continue;
-                }  
+                }
                 byte[] publicKeyByteRSA= user.getCrypt().getListKey().get(0);
                 logger.info("Key byte cua exchangeKey:   " + String.valueOf(exchangeKey.length) +" -------- exchangeKeySign: "+ String.valueOf(exChangeKeySign.length));
                 
-                byte[] exChangeKeySign_EnRSA = RSA.EncryptionRSA(exChangeKeySign, publicKeyByteRSA);              
-                byte[] exChangeKey_EnRSA = RSA.EncryptionRSA(exchangeKey, publicKeyByteRSA);                
+                byte[] exChangeKeySign_EnRSA = RSA.EncryptionRSA(exChangeKeySign, publicKeyByteRSA);
+                byte[] exChangeKey_EnRSA = RSA.EncryptionRSA(exchangeKey, publicKeyByteRSA);
                 ArrayList<byte[]> listAlgorithm = new ArrayList<byte[]>();
                 listAlgorithm.add(exChangeKey_EnRSA);
                 listAlgorithm.add(exChangeKeySign_EnRSA);
                 createMessage.setAlgorithm(listAlgorithm);
-//                logger.info(Base64.getEncoder().encodeToString(exChangeKeySign));                            
-//                logger.info(Base64.getEncoder().encodeToString(listKey.get(1)));                
+//                logger.info(Base64.getEncoder().encodeToString(exChangeKeySign));
+//                logger.info(Base64.getEncoder().encodeToString(listKey.get(1)));
 
-                ossTo.writeObject(createMessage);
-                ossTo.flush();
-                
+ossTo.writeObject(createMessage);
+ossTo.flush();
+
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-   
+    
     public  void exchangeKeyMessage(Message msg){
         String nameAlgo = msg.getMsg();
         String nameUserSend = msg.getName();
@@ -513,7 +654,7 @@ public class Listener implements Runnable {
             controller.showInfo(username,"HACKKKKKKKKKK");
         }
         else{
-            logger.info("Key giai thuat " + nameAlgo + " da nhan duoc: " + Base64.getEncoder().encodeToString(exChangeKey));                    
+            logger.info("Key giai thuat " + nameAlgo + " da nhan duoc: " + Base64.getEncoder().encodeToString(exChangeKey));
             listKey.add(2,exChangeKey);
             boolean isYes = false;
             for ( int x = 0; x < listCryptUser.size(); x++) {
@@ -522,19 +663,19 @@ public class Listener implements Runnable {
                     listCryptUser.get(x).setCrypt(new Cryptography(nameAlgo,listKey));
                     break;
                 }
-            }              
+            }
             if (isYes == false){
                 User user=new User();
                 user.setName(nameUserSend);
-                user.setCrypt(new Cryptography(nameAlgo,listKey));                
+                user.setCrypt(new Cryptography(nameAlgo,listKey));
                 listCryptUser.add(user);
             }
-                    
+
         }
-        logger.info("----------------------------------------=---------------------------------------------");        
+        logger.info("----------------------------------------=---------------------------------------------");
         logger.info("---------------------------------------- END EXCHANGE KEY --------------------------");
-        logger.info("----------------------------------------=---------------------------------------------");        
-          
+        logger.info("----------------------------------------=---------------------------------------------");
+
 
     }
     
