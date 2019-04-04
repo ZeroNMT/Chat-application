@@ -30,4 +30,6 @@
 </ul>
 <h1><a id="Mt_s_hnh_nh_32"></a>Một số hình ảnh</h1>
 
-![](C:\Users\ZERO.NMT\Desktop\Untitled.png)
+![](https://imgur.com/a/itvnGlF)
+![](https://imgur.com/a/YXtfP5n)
+![](https://imgur.com/a/IXl0puV)
