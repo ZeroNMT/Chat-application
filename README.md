@@ -29,3 +29,5 @@
 <li>Cho phép mã hóa nhiều định dạng hơn nữa như mp3, video,…</li>
 </ul>
 <h1><a id="Mt_s_hnh_nh_32"></a>Một số hình ảnh</h1>
+
+![](C:\Users\ZERO.NMT\Desktop\Untitled.png)
